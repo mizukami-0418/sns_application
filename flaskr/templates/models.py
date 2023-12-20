@@ -12,7 +12,7 @@ def load_user(user_id):
     return User.query.get(user_id)  # IDを元にDBからユーザーを取得して返す
 
 
-class User(UserMixin, db.Model)  # UserMixinを継承し、認証に必要なメソッドを提供
+class User(UserMixin, db.Model):  # UserMixinを継承し、認証に必要なメソッドを提供
 
     __tablename__ = "users"
 
