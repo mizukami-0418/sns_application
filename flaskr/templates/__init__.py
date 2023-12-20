@@ -6,8 +6,8 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 
 # login_managerの作成
-login_manager = LoginManager() # LoginManagerクラスからlogin_managerインスタンスを生成
-login_manager.login_view = "app.view" # リダイレクト先のエンドポイントを設定
+login_manager = LoginManager()  # LoginManagerクラスからlogin_managerインスタンスを生成
+login_manager.login_view = "app.view"  # リダイレクト先のエンドポイントを設定
 login_manager.login_message = "ログインしてください"
 
 # スクリプトのパスを取得し、絶対パスに変換する。
