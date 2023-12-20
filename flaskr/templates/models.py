@@ -24,11 +24,11 @@ class User(UserMixin, db.Model)  # UserMixinを継承し、認証に必要なメ
         db.String(128),
         default=generate_password_hash("snsflaskapp")
     )
-    picture_path = db.Column(db.Text) # プロフィール写真のファイルパスを保存
+    picture_path = db.Column(db.Text)  # プロフィール写真のファイルパスを保存
     # 有効か無効かのフラグ
     is_active = db.Column(db.Boolean, unique=False, default=False)
-    create_at = db.Column(db.DateTime, default=datetime.now) # 作成日時
-    update_at = db.Column(db.DateTime, default=datetime.now) # 更新日時
+    create_at = db.Column(db.DateTime, default=datetime.now)  # 作成日時
+    update_at = db.Column(db.DateTime, default=datetime.now)  # 更新日時
 
 
 # パスワードリセット時に使用するトークンを管理
@@ -43,6 +43,6 @@ class PasswordResetToken(db.Model):
         server_default=str(uuid4)  # ランダムに値を生成し、文字列に変換しデフォルトにする
     )
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    expire_at = db.Column(db.DateTime, default=datetime.now) # トークンの有効期間
-    create_at = db.Column(db.DateTime, default=datetime.now) # 作成日時
-    update_at = db.Column(db.DateTime, default=datetime.now) # 更新日時
+    expire_at = db.Column(db.DateTime, default=datetime.now)  # トークンの有効期間
+    create_at = db.Column(db.DateTime, default=datetime.now)  # 作成日時
+    update_at = db.Column(db.DateTime, default=datetime.now)  # 更新日時
