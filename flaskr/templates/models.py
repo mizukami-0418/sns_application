@@ -44,3 +44,5 @@ class PasswordResetToken(db.Model):
     )
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     expire_at = db.Column(db.DateTime, default=datetime.now) # トークンの有効期間
+    create_at = db.Column(db.DateTime, default=datetime.now) # 作成日時
+    update_at = db.Column(db.DateTime, default=datetime.now) # 更新日時
