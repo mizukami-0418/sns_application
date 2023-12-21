@@ -7,8 +7,9 @@ from flask_login import login_user, login_required, logout_user
 from flaskr.models import (User, PasswordResetToken)
 from flaskr import db
 
-from os import path
-
+from flaskr.forms import (
+    LoginForm, RegisterForm
+)
 # Blueprintの作成
 bp = Blueprint("app", __name__, url_prefix="")
 
