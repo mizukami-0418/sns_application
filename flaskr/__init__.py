@@ -14,6 +14,22 @@ db = SQLAlchemy()
 migrate = Migrate()
 
 def create_app():
+  """
+    Flaskアプリケーションを作成し、設定します。
+
+    Returns:
+        Flask: 設定されたFlaskアプリケーションのインスタンス。
+
+    この関数はFlaskアプリケーションを初期化し、設定します。秘密鍵、データベースURIなどの
+    必要な構成を行います。また、ブループリントを登録し、データベースを初期化し、データベース
+    の変更をマイグレートし、ユーザー認証のためにログインマネージャーを設定します。
+
+    設定が完了したFlaskアプリケーションのインスタンスが返されます。
+
+    例:
+        app = create_app()
+        app.run(debug=True)
+    """
   app = Flask(__name__)
   app.config['SECRET_KEY'] = 'mysite'
   app.config['SQLALCHEMY_DATABASE_URI'] = \
