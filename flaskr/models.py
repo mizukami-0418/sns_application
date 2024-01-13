@@ -11,7 +11,19 @@ def load_user(user_id):
   return User.query.get(int(user_id)) # Userクラスで定義したuserIDを取得
 
 class User(UserMixin, db.Model):
-  
+  """
+  ユーザーを表すデータベースモデルクラス。
+
+  Attributes:
+      id (int): ユーザーの一意の識別子。
+      username (str): ユーザーのユーザー名。
+      email (str): ユーザーのメールアドレス。
+      password (str): ユーザーのハッシュ化されたパスワード。
+      picture_path (str): ユーザーのプロフィール画像の保存先パス。
+      is_active (bool): アカウントが有効か無効かを示すフラグ。
+      create_at (datetime): ユーザーが作成された日時。
+      update_at (datetime): ユーザー情報が最後に更新された日時。
+  """
   __tablename__ = 'users'
   
   id = db.Column(db.Integer, primary_key=True)
@@ -29,6 +41,17 @@ class User(UserMixin, db.Model):
 
 
 class PasswordResetToken(db.Model):
+  """
+  パスワードリセットトークンを表すデータベースモデルクラス。
+
+  Attributes:
+      id (int): トークンの一意の識別子。
+      token (str): パスワードリセットのための一意のトークン。
+      user_id (int): トークンが関連付けられているユーザーのID。
+      expire_at (datetime): トークンの有効期限。
+      create_at (datetime): トークンが作成された日時。
+      update_at (datetime): トークン情報が最後に更新された日時。
+  """
   
   __tablename__ = 'password_reset_tokens'
   
