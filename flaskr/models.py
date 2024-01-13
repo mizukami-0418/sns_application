@@ -23,6 +23,10 @@ class User(UserMixin, db.Model):
       is_active (bool): アカウントが有効か無効かを示すフラグ。
       create_at (datetime): ユーザーが作成された日時。
       update_at (datetime): ユーザー情報が最後に更新された日時。
+      
+  Class Methods:
+      select_user_by_email: ユーザーをメールアドレスで絞り込んで取得するクラスメソッド。
+
   """
   __tablename__ = 'users'
   
@@ -38,6 +42,10 @@ class User(UserMixin, db.Model):
   is_active = db.Column(db.Boolean, unique=False, default=False)
   create_at = db.Column(db.DateTime, default=datetime.now) # 管理者用
   update_at = db.Column(db.DateTime, default=datetime.now) # テーブルの流れを確認する際に必要
+  
+  @classmethod # ユーザーをemailで絞り込み取得
+  def select_user_by_email(cls, email):
+    return cls.query.filter_by(email=email).first()
 
 
 class PasswordResetToken(db.Model):
