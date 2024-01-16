@@ -26,7 +26,9 @@ class User(UserMixin, db.Model):
       
   Class Methods:
       select_user_by_email: ユーザーをメールアドレスで絞り込んで取得するクラスメソッド。
-
+      
+  Methods:
+      validate_password: パスワードの有効性を検証するメソッド。
   """
   __tablename__ = 'users'
   
@@ -38,15 +40,58 @@ class User(UserMixin, db.Model):
     default = generate_password_hash('snsflaskapp') # デフォルトパスワード
   )
   picture_path = db.Column(db.Text)
-  # 有効か無効のフラグ
   is_active = db.Column(db.Boolean, unique=False, default=False)
   create_at = db.Column(db.DateTime, default=datetime.now) # 管理者用
   update_at = db.Column(db.DateTime, default=datetime.now) # テーブルの流れを確認する際に必要
   
-  @classmethod # ユーザーをemailで絞り込み取得
-  def select_user_by_email(cls, email):
-    return cls.query.filter_by(email=email).first()
+  def __init__(self, username, email):
+    self.username = username
+    self.email = email
 
+  @classmethod
+  def select_user_by_email(cls, email):
+    """
+    メールアドレスに基づいてユーザーを絞り込み、取得するクラスメソッド.
+
+    Args:
+        email (str): 検索するユーザーのメールアドレス.
+
+    Returns:
+        User or None: メールアドレスに一致するユーザーオブジェクト。見つからない場合はNone.
+
+    """
+    return cls.query.filter_by(email=email).first()
+  
+  def validate_password(self, password):
+    """
+    与えられたパスワードがユーザーのハッシュ化されたパスワードと一致するか検証するメソッド.
+
+    Args:
+        password (str): 検証するパスワード.
+
+    Returns:
+        bool: パスワードが一致する場合はTrue、それ以外はFalse.
+
+    """
+    return check_password_hash(self.password, password)
+  
+  def create_new_user(self):
+    """
+    ユーザーオブジェクトをデータベースに追加するメソッド.
+
+    Returns:
+        None
+
+    """
+    db.session.add(self)
+  
+  @classmethod
+  def select_user_by_id(cls, id):
+    return cls.query.get(id)
+  
+  def save_new_password(self, new_password):
+    self.password = generate_password_hash(new_password)
+    self.is_active = True
 
 class PasswordResetToken(db.Model):
   """
@@ -76,3 +121,50 @@ class PasswordResetToken(db.Model):
   expire_at = db.Column(db.DateTime, default=lambda: datetime.now() + timedelta(days=1)) # トークン有効時間
   create_at = db.Column(db.DateTime, default=datetime.now)
   update_at = db.Column(db.DateTime, default=datetime.now)
+  
+  def __init__(self, token, user_id, expire_at):
+    """PasswordResetToken インスタンスを初期化する。
+
+    Args:
+        token (str): リセットトークンの一意の識別子。
+        user_id (int): リセットトークンに関連するユーザーID。
+        expire_at (datetime): リセットトークンの有効期限。
+    """
+    self.token = token
+    self.user_id = user_id
+    self.expire_at = expire_at
+  
+  @classmethod
+  def publish_token(cls, user):
+    """指定されたユーザーに対して新しいパスワードリセットトークンを生成し、公開するメソッド。
+
+    Args:
+        user: User クラスのインスタンス。
+
+    Returns:
+        str: 生成されたパスワードリセットトークン。
+
+    Example:
+        user = User.query.get(1)  # 実際のユーザー取得ロジックに置き換える
+        token = PasswordResetToken.publish_token(user)
+    """
+    token = str(uuid4()) # uuid4 を使用して一意のトークンを生成
+    new_token = cls(
+      token,
+      user.id,
+      datetime.now() + timedelta(minutes=15) # 有効期限を現在の時刻から15分後に設定
+    )
+    db.session.add(new_token) # 新しいトークンをデータベースセッションに追加
+    return token # 生成されたトークンを返す
+  
+  @classmethod
+  def get_user_id_by_token(cls, token):
+    now = datetime.now()
+    record = cls.query.filter_by(token=str(token)).filter(cls.expire_at > now).first()
+    return record.user_id
+  
+  @classmethod
+  def delete_token(cls, token):
+    cls.query.filter_by(token=str(token)).delete()
+    
+    

@@ -52,3 +52,17 @@ class RegisterForm(Form):
   def validate_email(self, field):
     if User.select_user_by_email(field.data):
       raise ValidationError('登録済みのメールアドレスです')
+
+# パスワード設定用のフォーム
+class ResetPasswordForm(Form):
+  password = PasswordField(
+    'パスワード',
+    validators=[DataRequired(), EqualTo('confirm_password', message='パスワードが一致しません')]
+  )
+  confirm_password = PasswordField(
+    'パスワード確認：', validators=[DataRequired()]
+  )
+  submit = SubmitField('パスワードを更新する')
+  def validate_password(self, field):
+    if len(field.data) < 10:
+      raise ValidationError('パスワードは10文字以上で入力してください')
