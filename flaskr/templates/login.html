@@ -1,0 +1,36 @@
+{# login.html #}
+{% from "_formhelpers.html" import render_field %}
+{% extends "base.html" %}
+{% block title %}
+login - {{ super() }}
+{% endblock title %}
+{% block content %}
+{% for message in get_flashed_messages() %}
+{{ message }}
+{% endfor %}
+<div class="row">
+  <form method="POST">
+    {{ form.csrf_token }}
+    {{ render_field(form.email) }}
+    {{ render_field(form.password) }}
+    {{ form.submit() }}
+  </form>
+</div>
+{% endblock %}
+
+{# ここから下は一旦保留 
+  {% if current_user.is_authenticated %}
+  <div class="col-lg-4 offset-lg-2">
+    {% if current_user.picture_path %}
+      <img src="{{ url_for('static', filename=current_user.picture_path) }}">
+    {% endif %}
+  </div>
+  <div class="col-lg-4 offset-lg-2">
+    <p>ユーザー名：{{ current_user.username }}</p>
+    <p>メールアドレス：{{ current_user.email }}</p>
+  </div>
+  {% else %}
+    <p>ログイン or ユーザー登録をお願いします</p>
+  {% endif %}
+</div>
+{% endblock %} #}
