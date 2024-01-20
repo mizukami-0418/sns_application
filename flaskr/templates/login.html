@@ -16,6 +16,9 @@ login - {{ super() }}
     {{ render_field(form.confirm_password) }}
     {{ form.submit() }}
   </form>
+  <a href="{{url_for('app.forgot_password)}}">
+  パスワードをお忘れですか？
+  </a>
 </div>
 {% endblock %}
 

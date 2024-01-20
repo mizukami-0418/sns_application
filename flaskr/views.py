@@ -143,3 +143,7 @@ def reset_password(token):
     flash('パスワードを更新しました')
     return redirect(url_for('app.login'))
   return render_template('reset_password.html', form=form)
+
+@bp.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+  form = ForgotPasswordForm(request.form)
