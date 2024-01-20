@@ -66,3 +66,11 @@ class ResetPasswordForm(Form):
   def validate_password(self, field):
     if len(field.data) < 10:
       raise ValidationError('パスワードは10文字以上で入力してください')
+
+class ForgotPasswordForm(Form):
+  email = StringField('メールアドレス：', validators=[DataRequired(), Email])
+  submit = SubmitField('パスワードを再設定する')
+  
+  def validate_email(self, field):
+    if not User.select_user_by_email(field.data):
+      raise ValidationError('メールアドレスは存在しません')

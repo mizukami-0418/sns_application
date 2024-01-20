@@ -6,8 +6,9 @@ from flask_login import login_user, login_required, logout_user
 from flaskr.models import User, PasswordResetToken
 from flaskr import db
 
-from flaskr.forms import LoginForm, RegisterForm, ResetPasswordForm
+from flaskr.forms import LoginForm, RegisterForm, ResetPasswordForm, ForgotPasswordForm
 from flask_mail import Message, Mail
+
 
 bp = Blueprint('app', __name__, url_prefix='')
 mail = Mail()
@@ -147,3 +148,15 @@ def reset_password(token):
 @bp.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
   form = ForgotPasswordForm(request.form)
+  if request.method == 'POST' and form.validate():
+    email = form.email.data
+    user = User.select_user_by_email(email)
+    if User:
+      with db.session.begin(subtransactions=True):
+        token = PasswordResetToken.publish_token(user)
+      db.session.commit()
+      reset_url = f'http://127.0.0.1:5000/reset_password/{token}'
+      # メール送信用の関数を作成
+    else:
+      flash('このメールアドレスのユーザーは存在しません')
+  return render_template('forgot_password.html', form=form)
