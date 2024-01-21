@@ -6,7 +6,7 @@ from wtforms.fields import (
   StringField, FileField, PasswordField, SubmitField, HiddenField
 )
 from wtforms.validators import DataRequired, Email, EqualTo
-from wtforms import ValidationError
+from wtforms import ValidationError, validators
 from flaskr.models import User
 
 class LoginForm(Form):
@@ -55,19 +55,41 @@ class RegisterForm(Form):
 
 # パスワード設定用のフォーム
 class ResetPasswordForm(Form):
-  password = PasswordField(
-    'パスワード',
-    validators=[DataRequired(), EqualTo('confirm_password', message='パスワードが一致しません')]
-  )
-  confirm_password = PasswordField(
-    'パスワード確認：', validators=[DataRequired()]
-  )
+  """
+  パスワードリセット用のフォームクラス。
+
+  Attributes:
+      password (PasswordField): パスワードを入力するフィールド。
+      confirm_password (PasswordField): パスワードの確認を入力するフィールド。
+      submit (SubmitField): フォームを送信するためのボタン。
+
+  Methods:
+      validate_confirm_password: パスワードと確認用パスワードの一致を確認するメソッド。
+      validate_password: パスワードが指定の条件を満たしているか検証するメソッド。
+  """
+  password = PasswordField('パスワード：', validators=[DataRequired()])
+  confirm_password = PasswordField('パスワード確認：', validators=[DataRequired()])
   submit = SubmitField('パスワードを更新する')
+  
+  def validate_confirm_password(form, field):
+    if form.password.data != field.data:
+      raise ValidationError('パスワードが一致しません')
+  
   def validate_password(self, field):
     if len(field.data) < 10:
       raise ValidationError('パスワードは10文字以上で入力してください')
 
 class ForgotPasswordForm(Form):
+  """
+  パスワードを忘れた場合のフォームクラス。
+
+  Attributes:
+      email (StringField): メールアドレスを入力するフィールド。
+      submit (SubmitField): フォームを送信するためのボタン。
+
+  Methods:
+      validate_email: 入力されたメールアドレスが存在するか検証するメソッド。
+  """
   email = StringField('メールアドレス：', validators=[DataRequired(), Email])
   submit = SubmitField('パスワードを再設定する')
   
