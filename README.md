@@ -14,7 +14,7 @@ https://github.com/mizukami-0418/sns_application.git
   pip install -r requirements.txt
 
 4. .env ファイルを作成し、必要な環境変数を設定します。
-  # .env
+  .env
   SECRET_KEY=your_secret_key
   DATABASE_URL=your_database_url
 
