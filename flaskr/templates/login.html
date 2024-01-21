@@ -6,7 +6,9 @@ login - {{ super() }}
 {% endblock %}
 {% block content %}
 {% for message in get_flashed_messages() %}
-{{ message }}
+<div class="alert alert-info" role="alert">
+  {{ message }}
+</div>
 {% endfor %}
 <div class="row">
   <form method="POST">
@@ -16,25 +18,8 @@ login - {{ super() }}
     {{ render_field(form.confirm_password) }}
     {{ form.submit() }}
   </form>
-  <a href="{{url_for('app.forgot_password)}}">
+  <a href="{{url_for('app.forgot_password')}}">
   パスワードをお忘れですか？
   </a>
 </div>
 {% endblock %}
-
-{# ここから下は一旦保留 
-  {% if current_user.is_authenticated %}
-  <div class="col-lg-4 offset-lg-2">
-    {% if current_user.picture_path %}
-      <img src="{{ url_for('static', filename=current_user.picture_path) }}">
-    {% endif %}
-  </div>
-  <div class="col-lg-4 offset-lg-2">
-    <p>ユーザー名：{{ current_user.username }}</p>
-    <p>メールアドレス：{{ current_user.email }}</p>
-  </div>
-  {% else %}
-    <p>ログイン or ユーザー登録をお願いします</p>
-  {% endif %}
-</div>
-{% endblock %} #}
