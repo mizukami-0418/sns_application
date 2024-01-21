@@ -1,5 +1,6 @@
 # __init__.py
 import os
+import secrets
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -35,9 +36,9 @@ def create_app():
         app.run(debug=True)
     """
   app = Flask(__name__)
-  app.config['SECRET_KEY'] = 'mysite'
+  app.config['SECRET_KEY'] = secrets.token_hex(16)
   app.config['SQLALCHEMY_DATABASE_URI'] = \
-    'sqlite:///' + os.path.join(basedir, 'data.sqlite')
+    'sqlite:////' + os.path.join(basedir, 'data.sqlite')
   app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
   # Flask アプリケーションのメール設定
   app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
