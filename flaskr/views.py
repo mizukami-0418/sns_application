@@ -68,19 +68,28 @@ def login():
 @bp.route('/register', methods=["GET", "POST"])
 def register():
   """
-  ユーザー登録を処理するルート関数。
+  新しいユーザーを登録し、パスワードリセット用のトークンを生成してメールを送信します。
 
+  このメソッドは新しいユーザーを登録し、パスワードリセットトークンを生成して、
+  ユーザーに対してそのトークンを含むメールを送信します。ユーザーには
+  パスワードリセット用のURLが含まれており、それをクリックすることでパスワード
+  をリセットできるようになります。
+
+  Args:
+      self: インスタンス自体。
+  
   Returns:
-      HTML: ユーザー登録画面のHTMLテンプレート。
-
+      flask.Response: ユーザーに通知を表示するためのリダイレクトレスポンス。
   """
-  form = RegisterForm(request.form)
-  if request.method == 'POST' and form.validate():
+  form = RegisterForm(request.form) # インスタンスを作成
+  if request.method == 'POST' and form.validate(): # POSTメソッドかつバリデーション成功
+    # formデータを利用して新規ユーザーを作成
     user = User(
       username = form.username.data,
       email = form.email.data
     )
     with db.session.begin(subtransactions=True):
+      # DBに新規ユーザーを登録
       user.create_new_user()
     db.session.commit()
     # パスワードリセットトークンを生成
@@ -89,14 +98,13 @@ def register():
       token = PasswordResetToken.publish_token(user)
     db.session.commit()
     
-    # メールを送信
+    # パスワード設定用URLをメールで送信
     send_password_reset_email(user.email, token)
     
     flash('パスワード設定用URLをお送りします。ご確認をお願いします。')
-    # print(
-    #   f'パスワード設定用URL:http://127.0.0.1:5000/reset_password/{token}'
-    # )
+    
     return redirect(url_for('app.login'))
+  # バリデーションが失敗した場合、register.htmlを再度表示
   return render_template('register.html', form=form)
 
 def send_password_reset_email(email, token):
@@ -141,25 +149,47 @@ def reset_password(token):
       user.save_new_password(password) # 新しいパスワードをユーザーオブジェクトに保存
       PasswordResetToken.delete_token(token) # トークンを使用して関連するパスワードリセットトークンを削除
     db.session.commit()
+      
     flash('パスワードを更新しました')
+    
     return redirect(url_for('app.login'))
   return render_template('reset_password.html', form=form)
 
 @bp.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
+  """
+  パスワードを忘れた場合の処理を担当するエンドポイント。
+
+  ユーザーがパスワードを忘れた場合、このエンドポイントを通じて
+  パスワードリセットの手続きを行います。メールアドレスがフォームに
+  入力され、存在するユーザーであれば、パスワードリセット用のトークン
+  を生成し、ユーザーにメールで送信します。
+
+  Args:
+    None
+
+  Returns:
+    flask.Response: フォームの入力結果や処理結果に基づいたレスポンス。
+  """
+  # ForgotPasswordForm インスタンスの作成
   form = ForgotPasswordForm(request.form)
-  if request.method == 'POST' and form.validate():
-    email = form.email.data
+  if request.method == 'POST' and form.validate(): # POSTメソッドかつバリデーション成功
+    email = form.email.data # フォームから入力されたメールアドレスを取得
+    # 入力されたメールアドレスに対応するユーザーをDBから取得
     user = User.select_user_by_email(email)
-    if User:
+    if user: # userが存在
+      # パスワードリセットトークンを生成し、DBに保存
       with db.session.begin(subtransactions=True):
         token = PasswordResetToken.publish_token(user)
       db.session.commit()
       
+      # パスワードリセット用のメールをユーザーに送信
       send_password_reset_email(user.email, token)
       
       flash('パスワード再設定用のURLをメールでお送りしました。\
             リンク先より再設定をお願いします。')
+      # ユーザーが存在しない場合、エラーメッセージを表示
     else:
       flash('このメールアドレスのユーザーは存在しません')
+  # フォームの入力結果や処理結果に基づいて、適切なテンプレートを表示
   return render_template('forgot_password.html', form=form)
