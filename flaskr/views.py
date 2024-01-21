@@ -62,7 +62,7 @@ def login():
     elif not user.validate_password(form.password.data):
       # ユーザーが存在し、アクティブであるが、パスワードが間違っている場合
       flash('パスワードが間違っています')
-  # ログインが成功しなかった場合、またはGETリクエストの場合はログイン画面を表示
+  # ログインが失敗したか、GETリクエストの場合はログイン画面を表示
   return render_template('login.html', form=form)
 
 @bp.route('/register', methods=["GET", "POST"])
