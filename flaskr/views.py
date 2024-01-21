@@ -155,8 +155,11 @@ def forgot_password():
       with db.session.begin(subtransactions=True):
         token = PasswordResetToken.publish_token(user)
       db.session.commit()
-      reset_url = f'http://127.0.0.1:5000/reset_password/{token}'
-      # メール送信用の関数を作成
+      
+      send_password_reset_email(user.email, token)
+      
+      flash('パスワード再設定用のURLをメールでお送りしました。\
+            リンク先より再設定をお願いします。')
     else:
       flash('このメールアドレスのユーザーは存在しません')
   return render_template('forgot_password.html', form=form)
