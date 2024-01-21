@@ -13,5 +13,8 @@
     {{ render_field(form.email) }}
     {{ form.submit() }}
   </form>
+  <div class="row mt-3">
+  <p>既にアカウントをお持ちですか？ <a href="{{ url_for('app.login') }}">ログイン</a></p>
+  </div>
 </div>
 {% endblock %}
