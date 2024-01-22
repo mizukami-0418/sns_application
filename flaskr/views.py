@@ -88,13 +88,13 @@ def register():
       username = form.username.data,
       email = form.email.data
     )
-    with db.session.begin(subtransactions=True):
+    with db.session.begin():
       # DBに新規ユーザーを登録
       user.create_new_user()
     db.session.commit()
     # パスワードリセットトークンを生成
     token = ''
-    with db.session.begin(subtransactions=True):
+    with db.session.begin():
       token = PasswordResetToken.publish_token(user)
     db.session.commit()
     
@@ -145,7 +145,7 @@ def reset_password(token):
     password = form.password.data # 新しいパスワードの取得
     user = User.select_user_by_id(reset_user_id) # DBから対応するユーザーを取得
     # トランザクション内でDBとのセッションを開始
-    with db.session.begin(subtransactions=True):
+    with db.session.begin():
       user.save_new_password(password) # 新しいパスワードをユーザーオブジェクトに保存
       PasswordResetToken.delete_token(token) # トークンを使用して関連するパスワードリセットトークンを削除
     db.session.commit()
@@ -179,7 +179,7 @@ def forgot_password():
     user = User.select_user_by_email(email)
     if user: # userが存在
       # パスワードリセットトークンを生成し、DBに保存
-      with db.session.begin(subtransactions=True):
+      with db.session.begin():
         token = PasswordResetToken.publish_token(user)
       db.session.commit()
       

@@ -90,7 +90,7 @@ class ForgotPasswordForm(Form):
   Methods:
       validate_email: 入力されたメールアドレスが存在するか検証するメソッド。
   """
-  email = StringField('メールアドレス：', validators=[DataRequired(), Email])
+  email = StringField('メールアドレス：', validators=[DataRequired(), Email()])
   submit = SubmitField('パスワードを再設定する')
   
   def validate_email(self, field):
