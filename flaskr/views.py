@@ -91,10 +91,7 @@ def register():
     with db.session.begin():
       # DBに新規ユーザーを登録
       user.create_new_user()
-    db.session.commit()
     # パスワードリセットトークンを生成
-    token = ''
-    with db.session.begin():
       token = PasswordResetToken.publish_token(user)
     db.session.commit()
     

@@ -17,14 +17,14 @@ class User(UserMixin, db.Model):
   ユーザーを表すデータベースモデルクラス。
 
   Attributes:
-      id (int): ユーザーの一意の識別子。
-      username (str): ユーザーのユーザー名。
-      email (str): ユーザーのメールアドレス。
-      password (str): ユーザーのハッシュ化されたパスワード。
-      picture_path (str): ユーザーのプロフィール画像の保存先パス。
-      is_active (bool): アカウントが有効か無効かを示すフラグ。
-      create_at (datetime): ユーザーが作成された日時。
-      update_at (datetime): ユーザー情報が最後に更新された日時。
+    id (int): ユーザーの一意の識別子。
+    username (str): ユーザーのユーザー名。
+    email (str): ユーザーのメールアドレス。
+    password (str): ユーザーのハッシュ化されたパスワード。
+    picture_path (str): ユーザーのプロフィール画像の保存先パス。
+    is_active (bool): アカウントが有効か無効かを示すフラグ。
+    create_at (datetime): ユーザーが作成された日時。
+    update_at (datetime): ユーザー情報が最後に更新された日時。
   """
   __tablename__ = 'users'
   
@@ -45,16 +45,16 @@ class User(UserMixin, db.Model):
     クラスのインスタンスを初期化します。
 
     Args:
-        self: インスタンス自体。
-        username (str): ユーザーのユーザー名。
-        email (str): ユーザーのメールアドレス。
+      self: インスタンス自体。
+      username (str): ユーザーのユーザー名。
+      email (str): ユーザーのメールアドレス。
 
     Returns:
-        None
+      None
 
     Example:
-        user = User("JohnDoe", "john@example.com")
-        # インスタンスがユーザー名とメールアドレスで初期化されます。
+      user = User("JohnDoe", "john@example.com")
+      # インスタンスがユーザー名とメールアドレスで初期化されます。
     """
     self.username = username
     self.email = email
@@ -91,7 +91,7 @@ class User(UserMixin, db.Model):
     ユーザーオブジェクトをデータベースに追加するメソッド.
 
     Returns:
-        None
+      None
 
     """
     db.session.add(self)
