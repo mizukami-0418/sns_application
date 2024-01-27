@@ -176,6 +176,7 @@ def forgot_password():
   # フォームの入力結果や処理結果に基づいて、適切なテンプレートを表示
   return render_template('forgot_password.html', form=form)
 
+
 # サンプルデータ削除用ユーザー一覧
 @bp.route('/users')
 def user_list():
@@ -191,4 +192,19 @@ def user_delete(id):
   #   User.query.filter_by(user.id).delete()
   # db.session.commit()
   return redirect(url_for('app.user_list'))
-
+# サンプルデータ削除用トークン一覧
+@bp.route('/tokens')
+def token_list():
+  tokens = PasswordResetToken.query.all()
+  return render_template('token_list.html', tokens=tokens)
+# サンプルトークン削除用メソッド
+@bp.route('/tokens/<int:id>/delete', methods=['POST'])
+def token_delete(id):
+  token = PasswordResetToken.query.get(id)
+  db.session.delete(token)
+  db.session.commit()
+  # with db.session.begin():
+  #   User.query.filter_by(user.id).delete()
+  # db.session.commit()
+  return redirect(url_for('app.token_list'))
+# ここまで
