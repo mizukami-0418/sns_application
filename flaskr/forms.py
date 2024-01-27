@@ -117,3 +117,18 @@ class UserForm(Form):
         flash('メールアドレスは既に登録済みです')
         return False
     return True
+
+class ChangePasswordForm(Form):
+  password = PasswordField('更新パスワード：', validators=[DataRequired()])
+  confirm_password = PasswordField('パスワード確認：', validators=[DataRequired()])
+  submit = SubmitField('パスワードを更新する')
+  
+  def validate_confirm_password(form, field):
+    if form.password.data != field.data:
+      raise ValidationError('パスワードが一致しません')
+  
+  def validate_password(self, field):
+    if len(field.data) < 10:
+      raise ValidationError('パスワードは10文字以上で入力してください')
+
+  
