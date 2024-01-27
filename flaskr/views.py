@@ -93,7 +93,9 @@ def register():
       user.create_new_user()
     db.session.commit()
     # パスワードリセットトークンを生成
-    token = PasswordResetToken.publish_token(user)
+    with db.session.begin(nested=True):
+      token = PasswordResetToken.publish_token(user)
+    db.session.commit()
     email = user.email
     # パスワード設定用URLをメールで送信
     PasswordResetToken.send_password_reset_email(email, token)
@@ -125,7 +127,7 @@ def reset_password(token):
     password = form.password.data # 新しいパスワードの取得
     user = User.select_user_by_id(reset_user_id) # DBから対応するユーザーを取得
     # トランザクション内でDBとのセッションを開始
-    with db.session.begin():
+    with db.session.begin(nested=True):
       user.save_new_password(password) # 新しいパスワードをユーザーオブジェクトに保存
       PasswordResetToken.delete_token(token) # トークンを使用して関連するパスワードリセットトークンを削除
     db.session.commit()
@@ -173,3 +175,20 @@ def forgot_password():
       flash('このメールアドレスのユーザーは存在しません')
   # フォームの入力結果や処理結果に基づいて、適切なテンプレートを表示
   return render_template('forgot_password.html', form=form)
+
+# サンプルデータ削除用ユーザー一覧
+@bp.route('/users')
+def user_list():
+  users = User.query.all()
+  return render_template('user_list.html', users=users)
+# サンプルデータ削除用メソッド
+@bp.route('/users/<int:id>/delete', methods=['POST'])
+def user_delete(id):
+  user = User.query.get(id)
+  db.session.delete(user)
+  db.session.commit()
+  # with db.session.begin():
+  #   User.query.filter_by(user.id).delete()
+  # db.session.commit()
+  return redirect(url_for('app.user_list'))
+
