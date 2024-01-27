@@ -1,12 +1,15 @@
 # views.py
+from datetime import datetime
 from flask import (
   Blueprint, abort, request, render_template, redirect, url_for, flash
 )
-from flask_login import login_user, login_required, logout_user
+from flask_login import login_user, login_required, logout_user, current_user
 from flaskr.models import User, PasswordResetToken
 from flaskr import db
 
-from flaskr.forms import LoginForm, RegisterForm, ResetPasswordForm, ForgotPasswordForm
+from flaskr.forms import (
+  LoginForm, RegisterForm, ResetPasswordForm, ForgotPasswordForm, UserForm
+)
 from flask_mail import Message, Mail
 
 
@@ -176,6 +179,26 @@ def forgot_password():
   # フォームの入力結果や処理結果に基づいて、適切なテンプレートを表示
   return render_template('forgot_password.html', form=form)
 
+@bp.route('/user', methods=['GET', 'POST'])
+@login_required
+def user():
+  form = UserForm(request.form)
+  if request.method == 'POST' and form.validate():
+    user_id = current_user.get_id()
+    user = User.select_user_by_id(user_id)
+    with db.session.begin(nested=True):
+      user.username = form.username.data
+      user.email = form.email.data
+      file = request.files[form.picture_path.name].read()
+      if file:
+        file_name = user_id + ' ' + \
+          str(int(datetime.now().timestamp())) + '.jpg'
+        picture_path = 'flaskr/static/user_image/' + file_name
+        open(picture_path, 'wb').write(file)
+        user.picture_path = 'user_image/' + file_name
+    db.session.commit()
+    flash('ユーザー情報を更新しました')
+  return render_template('user.html', form=form)
 
 # サンプルデータ削除用ユーザー一覧
 @bp.route('/users')
