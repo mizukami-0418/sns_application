@@ -22,4 +22,9 @@ home - {{ super() }}
   </div>
   {% endif %}
 </div>
+{% for message in get_flashed_messages() %}
+<div class="alert alert-info" role="alert">
+  {{ message }}
+</div>
+{% endfor %}
 {% endblock %}
