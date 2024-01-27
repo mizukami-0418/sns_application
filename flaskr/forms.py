@@ -14,10 +14,10 @@ class LoginForm(Form):
   ログインフォームを表すWTFormsフォームクラス。
 
   Attributes:
-      email (StringField): メールアドレスを入力するフィールド。
-      password (PasswordField): パスワードを入力するフィールド。
-      confirm_password (PasswordField): パスワードの確認を入力するフィールド。
-      submit (SubmitField): ログインを実行するための送信ボタン。
+    email (StringField): メールアドレスを入力するフィールド。
+    password (PasswordField): パスワードを入力するフィールド。
+    confirm_password (PasswordField): パスワードの確認を入力するフィールド。
+    submit (SubmitField): ログインを実行するための送信ボタン。
   """
   email = StringField('メール：', validators=[DataRequired(), Email()])
   password = PasswordField(
@@ -32,14 +32,14 @@ class RegisterForm(Form):
   ユーザー登録フォームを表すWTFormsフォームクラス。
 
   Attributes:
-      email (StringField): メールアドレスを入力するフィールド。
-      username (StringField): ユーザー名を入力するフィールド。
-      submit (SubmitField): 登録を実行するための送信ボタン。
+    email (StringField): メールアドレスを入力するフィールド。
+    username (StringField): ユーザー名を入力するフィールド。
+    submit (SubmitField): 登録を実行するための送信ボタン。
 
   Methods:
-      validate_email: メールアドレスが既に登録されているかどうかを検証するメソッド。
-          Raises:
-              ValidationError: 登録済みのメールアドレスの場合に発生する例外。
+    validate_email: メールアドレスが既に登録されているかどうかを検証するメソッド。
+      Raises:
+        ValidationError: 登録済みのメールアドレスの場合に発生する例外。
   """
   email = StringField(
     'メールアドレス：',
@@ -59,13 +59,13 @@ class ResetPasswordForm(Form):
   パスワードリセット用のフォームクラス。
 
   Attributes:
-      password (PasswordField): パスワードを入力するフィールド。
-      confirm_password (PasswordField): パスワードの確認を入力するフィールド。
-      submit (SubmitField): フォームを送信するためのボタン。
+    password (PasswordField): パスワードを入力するフィールド。
+    confirm_password (PasswordField): パスワードの確認を入力するフィールド。
+    submit (SubmitField): フォームを送信するためのボタン。
 
   Methods:
-      validate_confirm_password: パスワードと確認用パスワードの一致を確認するメソッド。
-      validate_password: パスワードが指定の条件を満たしているか検証するメソッド。
+    validate_confirm_password: パスワードと確認用パスワードの一致を確認するメソッド。
+    validate_password: パスワードが指定の条件を満たしているか検証するメソッド。
   """
   password = PasswordField('パスワード：', validators=[DataRequired()])
   confirm_password = PasswordField('パスワード確認：', validators=[DataRequired()])
@@ -84,11 +84,11 @@ class ForgotPasswordForm(Form):
   パスワードを忘れた場合のフォームクラス。
 
   Attributes:
-      email (StringField): メールアドレスを入力するフィールド。
-      submit (SubmitField): フォームを送信するためのボタン。
+    email (StringField): メールアドレスを入力するフィールド。
+    submit (SubmitField): フォームを送信するためのボタン。
 
   Methods:
-      validate_email: 入力されたメールアドレスが存在するか検証するメソッド。
+    validate_email: 入力されたメールアドレスが存在するか検証するメソッド。
   """
   email = StringField('メールアドレス：', validators=[DataRequired(), Email()])
   submit = SubmitField('パスワードを再設定する')
