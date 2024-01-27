@@ -1,0 +1,30 @@
+{# home.html #}
+{% extends "base.html" %}
+{% block title %}
+home - {{ super() }}
+{% endblock title %}
+{% block content %}
+<div class="row">
+  {% if current_user.is_authenticated %}
+  <div class="col-lg-4 offset-lg-2">
+    {% if current_user.picture_path %}
+      <img src="{{ url_for('static', filename=current_user.picture_path) }}"
+      class="img-fluid" alt="User Picture">
+    {% endif %}
+  </div>
+  <div class="col-lg-4">
+    <p>ユーザー名：{{ current_user.username }}</p>
+    <p>メールアドレス：{{ current_user.email }}</p>
+  </div>
+  {% else %}
+  <div class="col-lg-8 offset-lg-2">
+    <p>ログイン or ユーザー登録をお願いします</p>
+  </div>
+  {% endif %}
+</div>
+{% for message in get_flashed_messages() %}
+<div class="alert alert-info" role="alert">
+  {{ message }}
+</div>
+{% endfor %}
+{% endblock %}
