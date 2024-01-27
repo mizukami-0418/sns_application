@@ -199,7 +199,7 @@ class PasswordResetToken(db.Model):
         user = User.query.get(1)  # 実際のユーザー取得ロジックに置き換える
         token = PasswordResetToken.publish_token(user)
     """
-    token = secrets.token_urlsafe(32) # 一意のトークンを生成
+    token = str(uuid4()) # 一意のトークンを生成
     new_token = cls(
       token,
       user.id,
