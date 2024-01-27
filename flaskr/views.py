@@ -8,7 +8,7 @@ from flaskr.models import User, PasswordResetToken
 from flaskr import db
 
 from flaskr.forms import (
-  LoginForm, RegisterForm, ResetPasswordForm, ForgotPasswordForm, UserForm
+  LoginForm, RegisterForm, ResetPasswordForm, ForgotPasswordForm, UserForm, ChangePasswordForm
 )
 from flask_mail import Message, Mail
 
@@ -199,6 +199,21 @@ def user():
     db.session.commit()
     flash('ユーザー情報を更新しました')
   return render_template('user.html', form=form)
+
+@bp.route('/change_password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+  form = ChangePasswordForm(request.form)
+  if request.method == 'POST' and form.validate():
+    user = User.select_user_by_id(current_user.get_id())
+    password = form.password.data # 新しいパスワードの取得
+    with db.session.begin(nested=True):
+      user.save_new_password(password) # 新しいパスワードをユーザーオブジェクトに保存
+    db.session.commit()
+    flash('パスワードの更新を行いました')
+    return redirect(url_for('app.user'))
+  return render_template('change_password.html', form=form)
+
 
 # サンプルデータ削除用ユーザー一覧
 @bp.route('/users')
