@@ -6,6 +6,9 @@ from flask_login import UserMixin
 
 from datetime import datetime, timedelta
 from uuid import uuid4
+from flask_mail import Message, Mail
+
+mail = Mail()
 
 # userの情報を取得するための関数
 @login_manager.user_loader
@@ -65,22 +68,22 @@ class User(UserMixin, db.Model):
     メールアドレスに基づいてユーザーを絞り込み、取得するクラスメソッド.
 
     Args:
-        email (str): 検索するユーザーのメールアドレス.
+      email (str): 検索するユーザーのメールアドレス.
 
     Returns:
-        User or None: メールアドレスに一致するユーザーオブジェクト。見つからない場合はNone.
+      User or None: メールアドレスに一致するユーザーオブジェクト。見つからない場合はNone.
 
     """
     return cls.query.filter_by(email=email).first()
   
   def validate_password(self, password):
     """
-    与えられたパスワードがユーザーのハッシュ化されたパスワードと一致するか検証するメソッド.
+      与えられたパスワードがユーザーのハッシュ化されたパスワードと一致するか検証するメソッド.
 
-    Args:
+      Args:
         password (str): 検証するパスワード.
 
-    Returns:
+      Returns:
         bool: パスワードが一致する場合はTrue、それ以外はFalse.
 
     """
@@ -88,10 +91,10 @@ class User(UserMixin, db.Model):
   
   def create_new_user(self):
     """
-    ユーザーオブジェクトをデータベースに追加するメソッド.
+      ユーザーオブジェクトをデータベースに追加するメソッド.
 
-    Returns:
-      None
+      Returns:
+        None
 
     """
     db.session.add(self)
@@ -99,51 +102,51 @@ class User(UserMixin, db.Model):
   @classmethod
   def select_user_by_id(cls, id):
     """
-    ユーザーのIDを使用してデータベースからユーザーを取得します。
+      ユーザーのIDを使用してデータベースからユーザーを取得します。
 
-    Args:
+      Args:
         cls (User): クラス自体。
         user_id (int): 取得するユーザーのID。
 
-    Returns:
+      Returns:
         Userクラス or None: 指定されたIDのユーザーが見つかれば、Userクラスのインスタンスが返されます。見つからない場合はNoneが返されます。
 
-    Example:
+      Example:
         user = User.select_user_by_id(123)
         if user:
-            print(f"ユーザーが見つかりました: {user.username}")
+          print(f"ユーザーが見つかりました: {user.username}")
         else:
-            print("ユーザーが見つかりませんでした。")
+          print("ユーザーが見つかりませんでした。")
     """
     return cls.query.get(id)
   
   def save_new_password(self, new_password):
     """
-    新しいパスワードをハッシュ化して保存します。
+      新しいパスワードをハッシュ化して保存します。
 
-    このメソッドは、与えられた新しいパスワードをハッシュ化し、
-    インスタンスのパスワード属性に保存し、同時にアクティブ状態を有効にします。
+      このメソッドは、与えられた新しいパスワードをハッシュ化し、
+      インスタンスのパスワード属性に保存し、同時にアクティブ状態を有効にします。
 
     Args:
-        self: インスタンス自体。
-        new_password (str): ハッシュ化される新しいパスワード。
+      self: インスタンス自体。
+      new_password (str): ハッシュ化される新しいパスワード。
 
     Returns:
-        None
+      None
 
     Example:
-        user = User()
-        user.save_new_password("my_secure_password")
-        # インスタンスのパスワードがハッシュ化され、アクティブ状態が有効になります。
+      user = User()
+      user.save_new_password("my_secure_password")
+      # インスタンスのパスワードがハッシュ化され、アクティブ状態が有効になります。
     """
     self.password = generate_password_hash(new_password)
     self.is_active = True
 
 class PasswordResetToken(db.Model):
   """
-  パスワードリセットトークンを表すデータベースモデルクラス。
+    パスワードリセットトークンを表すデータベースモデルクラス。
 
-  Attributes:
+    Attributes:
       id (int): トークンの一意の識別子。
       token (str): パスワードリセットのための一意のトークン。
       user_id (int): トークンが関連付けられているユーザーのID。
@@ -170,9 +173,9 @@ class PasswordResetToken(db.Model):
   
   def __init__(self, token, user_id, expire_at):
     """
-    PasswordResetToken インスタンスを初期化する。
+      PasswordResetToken インスタンスを初期化する。
 
-    Args:
+      Args:
         token (str): リセットトークンの一意の識別子。
         user_id (int): リセットトークンに関連するユーザーID。
         expire_at (datetime): リセットトークンの有効期限。
@@ -184,15 +187,15 @@ class PasswordResetToken(db.Model):
   @classmethod
   def publish_token(cls, user):
     """
-    指定されたユーザーに対して新しいパスワードリセットトークンを生成し、公開するメソッド。
+      指定されたユーザーに対して新しいパスワードリセットトークンを生成し、公開するメソッド。
 
-    Args:
+      Args:
         user: User クラスのインスタンス。
 
-    Returns:
+      Returns:
         str: 生成されたパスワードリセットトークン。
 
-    Example:
+      Example:
         user = User.query.get(1)  # 実際のユーザー取得ロジックに置き換える
         token = PasswordResetToken.publish_token(user)
     """
@@ -206,27 +209,45 @@ class PasswordResetToken(db.Model):
     return token # 生成されたトークンを返す
   
   @classmethod
+  def send_password_reset_email(cls, email, token):
+    """
+      パスワードリセット用のメールを送信する関数。
+
+      Args:
+        email (str): 送信先メールアドレス。
+        token (str): パスワードリセット用トークン。
+
+      Returns:
+        None
+
+    """
+    subject = 'パスワード設定用URL'
+    body = f'パスワード設定用URL: http://127.0.0.1:5000/reset_password/{token}'
+    msg = Message(subject, recipients=[email], body=body)
+    mail.send(msg)
+  
+  @classmethod
   def get_user_id_by_token(cls, token):
     """
-    トークンに対応するユーザーIDを取得。
+      トークンに対応するユーザーIDを取得。
 
-    与えられたトークンが存在し、かつ有効期限が現在時刻よりも後である場合、
-    トークンに対応するユーザーIDを返します。
+      与えられたトークンが存在し、かつ有効期限が現在時刻よりも後である場合、
+      トークンに対応するユーザーIDを返します。
 
-    Args:
+      Args:
         cls (User): クラス自体。
         token (str): 検索対象のトークン。
 
-    Returns:
+      Returns:
         int or None: トークンに対応するユーザーIDが見つかれば返します。
-            見つからない場合はNoneが返されます。
+          見つからない場合はNoneが返されます。
 
-    Example:
+      Example:
         user_id = User.get_user_id_by_token("sample_token")
         if user_id:
-            print(f"ユーザーID: {user_id}")
+          print(f"ユーザーID: {user_id}")
         else:
-            print("ユーザーが見つかりませんでした。")
+          print("ユーザーが見つかりませんでした。")
     """
     now = datetime.now()
     record = cls.query.filter_by(token=str(token)).filter(cls.expire_at > now).first()
@@ -235,18 +256,18 @@ class PasswordResetToken(db.Model):
   @classmethod
   def delete_token(cls, token):
     """
-    トークンに対応するデータベース内のエントリを削除します。
+      トークンに対応するデータベース内のエントリを削除します。
 
-    Args:
+      Args:
         cls (User): クラス自体。
         token (str): 削除対象のトークン。
 
-    Returns:
+      Returns:
         None
 
-    Example:
+      Example:
         User.delete_token("sample_token")
-        # トークンに対応するエントリがデータベースから削除されます。
+        トークンに対応するエントリがデータベースから削除されます。
     """
     cls.query.filter_by(token=str(token)).delete()
     db.session.commit()
