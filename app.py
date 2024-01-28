@@ -1,4 +1,4 @@
-# setup.py
+# app.py
 # アプリ立ち上げのファイル
 from flaskr import create_app
 
