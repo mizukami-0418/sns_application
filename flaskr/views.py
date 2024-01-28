@@ -214,6 +214,14 @@ def change_password():
     return redirect(url_for('app.user'))
   return render_template('change_password.html', form=form)
 
+@bp.app_errorhandler(404)
+def page_not_found(e):
+  return redirect(url_for('app.home'))
+
+@bp.app_errorhandler(500)
+def server_error(e):
+  return render_template('500.html'), 500
+
 
 # サンプルデータ削除用ユーザー一覧
 @bp.route('/users')
