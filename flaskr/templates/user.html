@@ -14,7 +14,8 @@
   {% endfor %}
   <div class="col-lg-4 offset-lg-2">
     {% if current_user.picture_path %}
-    <img src="{{ url_for('static', filename=current_user.picture_path)}}">
+    <img src="{{ url_for('static', filename=current_user.picture_path)}}"
+    class="img-fluid" alt="User Picture">
     {% endif %}
   </div>
   <div class="col-lg-4 offset-lg-2">
