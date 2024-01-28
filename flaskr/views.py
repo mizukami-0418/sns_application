@@ -103,9 +103,8 @@ def register():
     # パスワード設定用URLをメールで送信
     PasswordResetToken.send_password_reset_email(email, token)
     
-    flash(f'パスワード設定用URLをお送りします。ご確認をお願いします。{email}')
+    flash('パスワード設定用URLをお送りします。ご確認をお願いします。')
     
-    return redirect(url_for('app.home'))
   # バリデーションが失敗した場合、register.htmlを再度表示
   return render_template('register.html', form=form)
 
@@ -169,7 +168,7 @@ def forgot_password():
       db.session.commit()
       
       # パスワードリセット用のメールをユーザーに送信
-      PasswordResetToken.send_password_forgot_email(email, token)
+      PasswordResetToken.send_password_reset_email(email, token)
       
       flash('パスワード再設定用のURLをメールでお送りしました。\
             リンク先より再設定をお願いします。')
