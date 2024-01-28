@@ -23,10 +23,10 @@
       <a class="navbar-brand" href="{{url_for('app.home')}}">ホーム</a>
       {% if current_user.is_authenticated %}
       <a class="navbar-brand" href="{{url_for('app.logout')}}">ログアウト</a>
+      <a class="navbar-brand" href="{{url_for('app.user')}}">ユーザー情報編集</a>
       {% else %}
       <a class="navbar-brand" href="{{url_for('app.login')}}">ログイン</a>
       <a class="navbar-brand" href="{{url_for('app.register')}}">登録</a>
-      <a class="navbar-brand" href="{{url_for('app.user')}}">ユーザー情報編集</a>
       {# ここから下２行は完成後削除 #}
       <a class="navbar-brand" href="{{url_for('app.user_list')}}">サンプルユーザー一覧</a>
       <a class="navbar-brand" href="{{url_for('app.token_list')}}">サンプルトークン一覧</a>
