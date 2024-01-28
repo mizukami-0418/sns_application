@@ -225,6 +225,24 @@ class PasswordResetToken(db.Model):
     body = f'パスワード設定用URL: http://127.0.0.1:5000/reset_password/{token}'
     msg = Message(subject, recipients=[email], body=body)
     mail.send(msg)
+    
+  @classmethod
+  def send_password_forgot_email(cls, email, token):
+    """
+      パスワード再設定用のメールを送信する関数。
+
+      Args:
+        email (str): 送信先メールアドレス。
+        token (str): パスワードリセット用トークン。
+
+      Returns:
+        None
+
+    """
+    subject = 'パスワード再設定用URL'
+    body = f'パスワード再設定用URL: http://127.0.0.1:5000/forgot_password/{token}'
+    msg = Message(subject, recipients=[email], body=body)
+    mail.send(msg)
   
   @classmethod
   def get_user_id_by_token(cls, token):
