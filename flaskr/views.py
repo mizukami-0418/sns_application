@@ -164,12 +164,12 @@ def forgot_password():
     user = User.select_user_by_email(email)
     if user: # userが存在
       # パスワードリセットトークンを生成し、DBに保存
-      with db.session.begin():
+      with db.session.begin(nested=True):
         token = PasswordResetToken.publish_token(user)
       db.session.commit()
       
       # パスワードリセット用のメールをユーザーに送信
-      PasswordResetToken.send_password_reset_email(user.email, token)
+      PasswordResetToken.send_password_forgot_email(email, token)
       
       flash('パスワード再設定用のURLをメールでお送りしました。\
             リンク先より再設定をお願いします。')
