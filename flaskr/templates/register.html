@@ -13,6 +13,11 @@
     {{ render_field(form.email) }}
     {{ form.submit() }}
   </form>
+  {% for message in get_flashed_messages() %}
+    <div class="alert alert-info" role="alert">
+    {{ message }}
+    </div>
+  {% endfor %}
   <div class="row mt-3">
   <p>既にアカウントをお持ちですか？ <a href="{{ url_for('app.login') }}">ログイン</a></p>
   </div>
