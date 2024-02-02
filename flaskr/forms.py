@@ -131,4 +131,8 @@ class ChangePasswordForm(Form):
     if len(field.data) < 10:
       raise ValidationError('パスワードは10文字以上で入力してください')
 
-  
+class UserSearchForm(Form):
+  username = StringField(
+    'ユーザー名：', validators=[DataRequired()]
+  )
+  submit = SubmitField('ユーザー検索')
