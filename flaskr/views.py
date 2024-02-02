@@ -8,7 +8,8 @@ from flaskr.models import User, PasswordResetToken
 from flaskr import db
 
 from flaskr.forms import (
-  LoginForm, RegisterForm, ResetPasswordForm, ForgotPasswordForm, UserForm, ChangePasswordForm
+  LoginForm, RegisterForm, ResetPasswordForm, ForgotPasswordForm,
+  UserForm, ChangePasswordForm, UserSearchForm
 )
 from flask_mail import Message, Mail
 
@@ -181,6 +182,31 @@ def forgot_password():
 @bp.route('/user', methods=['GET', 'POST'])
 @login_required
 def user():
+  """
+    ユーザーページを処理します。
+
+    このルートは、ログイン済みユーザーが自分のユーザーページにアクセスし、ユーザー情報を表示および更新できるようにします。
+
+    Args:なし
+
+    Returns:
+      リクエストメソッドがGETなら:
+        'user.html'テンプレートを描画し、ユーザーの情報を表示するためのUserFormを提供します。
+
+      リクエストメソッドがPOSTでフォームが有効な場合:
+        ログイン中のユーザーのIDを取得します。
+        Userクラスの 'select_user_by_id' メソッドを使用して、ユーザーIDに対応するユーザーを取得します。
+        トランザクション内でユーザーのユーザー名とメールを更新します。
+        フォームからアップロードされたユーザーのプロフィール画像を保存し、画像のパスをユーザーオブジェクトに設定します。
+        データベースセッションをコミットし、フラッシュメッセージを表示します。
+
+    Note:
+        このルートはユーザーがログインしていることを要求します（@login_requiredでデコレートされています）。
+
+    Example:
+        フォームを使用してユーザー情報を更新し、データベースにコミットすると、フラッシュメッセージが表示されます。
+
+  """
   form = UserForm(request.form)
   if request.method == 'POST' and form.validate():
     user_id = current_user.get_id()
@@ -202,6 +228,32 @@ def user():
 @bp.route('/change_password', methods=['GET', 'POST'])
 @login_required
 def change_password():
+  """
+    パスワード変更ページを処理します。
+
+    このルートは、ログイン済みユーザーが自分のアカウントのパスワードを変更できるようにします。
+
+    Args:なし
+
+    Returns:
+      リクエストメソッドがGETなら:
+        'change_password.html'テンプレートを描画し、パスワード変更用のChangePasswordFormを提供します。
+
+      リクエストメソッドがPOSTでフォームが有効な場合:
+        ログイン中のユーザーのIDを使用してユーザーオブジェクトを取得します。
+        フォームから新しいパスワードを取得します。
+        トランザクション内でユーザーオブジェクトに新しいパスワードを保存します。
+        データベースセッションをコミットし、フラッシュメッセージを表示します。
+        ユーザーのアカウントページにリダイレクトします。
+
+    Note:
+        このルートはユーザーがログインしていることを要求します（@login_requiredでデコレートされています）。
+
+    Example:
+        フォームを使用してパスワードを変更し、データベースにコミットすると、フラッシュメッセージが表示され、
+        ユーザーはアカウントページにリダイレクトされます。
+
+    """
   form = ChangePasswordForm(request.form)
   if request.method == 'POST' and form.validate():
     user = User.select_user_by_id(current_user.get_id())
@@ -212,6 +264,41 @@ def change_password():
     flash('パスワードの更新を行いました')
     return redirect(url_for('app.user'))
   return render_template('change_password.html', form=form)
+
+@bp.route('/user_search', methods=['GET', 'POST'])
+@login_required
+def user_search():
+  """
+    ユーザー検索機能
+
+    ログイン済みのユーザーがユーザー名で他のユーザーを検索できる。
+
+    Args:なし
+
+    Returns:
+      リクエストメソッドがGETなら:
+        'user_search.html'テンプレートを描画し、入力用のUserSearchFormを提供します。
+
+      リクエストメソッドがPOSTでフォームが有効な場合:
+        提出されたフォームデータからユーザー名を取得します。
+        Userクラスの 'search_by_name' メソッドを呼び出して、提供されたユーザー名に一致するユーザーを取得します。
+        'user_search.html'テンプレートを描画し、UserSearchFormと一致するユーザーのリストを提供します。
+
+    Note:
+      このルートはユーザーがログインしていることを要求します（@login_requiredでデコレートされています）。
+
+    Example:
+      有効な検索フォームを送信すると、テンプレートが検索結果とともに描画されます。
+
+  """
+  form = UserSearchForm(request.form)
+  users = None
+  if request.method == 'POST' and form.validate():
+    username = form.username.data
+    users = User.search_by_name(username)
+  return render_template(
+    'user_search.html', form=form, users=users
+  )
 
 @bp.app_errorhandler(404)
 def page_not_found(e):
