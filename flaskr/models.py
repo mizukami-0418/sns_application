@@ -2,7 +2,7 @@
 import secrets
 from flaskr import db, login_manager
 from flask_bcrypt import generate_password_hash, check_password_hash
-from flask_login import UserMixin
+from flask_login import UserMixin, current_user
 
 from datetime import datetime, timedelta
 from uuid import uuid4
@@ -141,7 +141,33 @@ class User(UserMixin, db.Model):
     """
     self.password = generate_password_hash(new_password)
     self.is_active = True
+    
+  @classmethod
+  def search_by_name(cls, username):
+    """
+    ユーザー名で検索して一致するユーザーを返します。
 
+    Args:username (str): 検索するユーザー名の一部または完全な文字列。
+
+    Returns:
+      list: 検索条件に一致するユーザーのリスト。各ユーザーはid、username、picture_pathの属性を持っています。
+
+    Note:
+      ユーザー名が指定された文字列を含む、かつ現在のログインユーザーのIDと異なり、
+      かつアクティブなユーザーに対して検索が行われます。
+
+    Example:
+      User.search_by_name('John')  # 'John'を含むユーザー名で検索し、一致するユーザーのリストを返します。
+      
+    """
+    return cls.query.filter(
+      cls.username.like(f'%{username}%'),
+      cls.id != int(current_user.get_id()),
+      cls.is_active == True
+    ).with_entities(
+      cls.id, cls.username, cls.picture_path
+    ).all()
+      
 class PasswordResetToken(db.Model):
   """
     パスワードリセットトークンを表すデータベースモデルクラス。
