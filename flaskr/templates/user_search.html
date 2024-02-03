@@ -25,6 +25,7 @@
           <th scope="col">#</th>
           <th scope="col">プロフィール画像</th>
           <th scope="col">ユーザー名</th>
+          <th scope="col">フレンド申請or承認</th>
         </tr>
       </thead>
       <tbody>
@@ -40,6 +41,27 @@
           <th scope="col"></th>
           {% endif %}
           <th scope="col">{{ user.username }}</th>
+          <th scope="col">
+            {% if user.joined_status_from_to == 2 or user.joined_status_to_from == 2 %}
+            フレンド
+            {% elif user.joined_status_from_to == 1 %}
+            フレンド申請中
+            {% elif user.joined_status_to_from == 1 %}
+            <form method="POST" action="{{ url_for('app.connect_user') }}">
+              {{ connect_form.csrf_token }}
+              {{ connect_form.connect_condition(value='accept') }}
+              {{ connect_form.to_user_id(value=user.id) }}
+              {{ connect_form.submit(class='btn btn-primary', value='フレンド承認')}}
+            </form>
+            {% else %}
+            <form method="POST" action="{{ url_for('app.connect_user') }}">
+              {{ connect_form.csrf_token }}
+              {{ connect_form.connect_condition(value='connect') }}
+              {{ connect_form.to_user_id(value=user.id) }}
+              {{ connect_form.submit(class='btn btn-primary', value='フレンド申請する')}}
+            </form>
+            {% endif %}
+          </th>
         </tr>
         {% endfor %}
       </tbody>
