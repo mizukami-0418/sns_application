@@ -186,6 +186,52 @@ class User(UserMixin, db.Model):
       user_connect1.status.label("joined_status_to_from"),
       user_connect2.status.label("joined_status_from_to")
     ).all()
+    
+  @classmethod
+  def select_friends(cls):
+    return cls.query.join(
+      UserConnect,
+      or_(
+        and_(
+          UserConnect.to_user_id == cls.id,
+          UserConnect.from_user_id == current_user.get_id(),
+          UserConnect.status == 2
+        ),
+        and_(
+          UserConnect.from_user_id == cls.id,
+          UserConnect.to_user_id == current_user.get_id(),
+          UserConnect.status == 2
+        )
+      )
+    ).with_entities(
+      cls.id, cls.username, cls.picture_path
+    ).all()
+    
+  @classmethod
+  def select_requested_friends(cls):
+    return cls.query.join(
+      UserConnect,
+      and_(
+        UserConnect.from_user_id == cls.id,
+        UserConnect.to_user_id == current_user.get_id(),
+        UserConnect.status == 1
+      )
+    ).with_entities(
+      cls.id,  cls.username, cls.picture_path
+    ).all()
+  
+  @classmethod  
+  def select_requesting_friends(cls):
+    return cls.query.join(
+      UserConnect,
+      and_(
+        UserConnect.from_user_id == current_user.get_id(),
+        UserConnect.to_user_id == cls.id,
+        UserConnect.status == 1
+      )
+    ).with_entities(
+      cls.id,  cls.username, cls.picture_path
+    ).all()
       
 class PasswordResetToken(db.Model):
   """
