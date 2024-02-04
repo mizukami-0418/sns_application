@@ -26,7 +26,20 @@ def home():
       HTML: ホーム画面のHTMLテンプレート。
 
   """
-  return render_template('home.html')
+  friends = requested_friends = requesting_friends = None
+  connect_form = ConnectForm()
+  session['url'] = 'app.home'
+  if current_user.is_authenticated:
+    friends = User.select_friends()
+    requested_friends = User.select_requested_friends()
+    requesting_friends = User.select_requesting_friends()
+  return render_template(
+    'home.html', 
+    friends = friends,
+    requested_friends = requested_friends,
+    requesting_friends = requesting_friends,
+    connect_form = connect_form
+  )
 
 @bp.route('/logout')
 def logout():
@@ -347,9 +360,6 @@ def user_delete(id):
   user = User.query.get(id)
   db.session.delete(user)
   db.session.commit()
-  # with db.session.begin():
-  #   User.query.filter_by(user.id).delete()
-  # db.session.commit()
   return redirect(url_for('app.user_list'))
 # サンプルデータ削除用トークン一覧
 @bp.route('/tokens')
@@ -362,8 +372,17 @@ def token_delete(id):
   token = PasswordResetToken.query.get(id)
   db.session.delete(token)
   db.session.commit()
-  # with db.session.begin():
-  #   User.query.filter_by(user.id).delete()
-  # db.session.commit()
   return redirect(url_for('app.token_list'))
+# サンプルコネクト削除用コネクト一覧
+@bp.route('/connects')
+def connect_list():
+  connects = UserConnect.query.all()
+  return render_template('connect_list.html', connects=connects)
+# サンプルコネクト削除用メソッド
+@bp.route('/connects/<int:id>/delete', methods=['POST'])
+def connect_delete(id):
+  connect = UserConnect.query.get(id)
+  db.session.delete(connect)
+  db.session.commit()
+  return redirect(url_for('app.connect_list'))
 # ここまで
