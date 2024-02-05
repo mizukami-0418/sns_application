@@ -4,14 +4,14 @@ from flask import (
   Blueprint, abort, request, render_template, redirect, url_for, flash, session
 )
 from flask_login import login_user, login_required, logout_user, current_user
-from flaskr.models import User, PasswordResetToken, UserConnect
+from flaskr.models import User, PasswordResetToken, UserConnect, Message
 from flaskr import db
 
 from flaskr.forms import (
   LoginForm, RegisterForm, ResetPasswordForm, ForgotPasswordForm,
-  UserForm, ChangePasswordForm, UserSearchForm, ConnectForm
+  UserForm, ChangePasswordForm, UserSearchForm, ConnectForm, MessageForm
 )
-from flask_mail import Message, Mail
+from flask_mail import Mail # Message
 
 
 bp = Blueprint('app', __name__, url_prefix='')
@@ -339,6 +339,24 @@ def connect_user():
         db.session.commit()
   next_url = session.pop('url', 'app:home')
   return redirect(url_for(next_url))
+
+@bp.route('/message/<id>', methods=['GET', 'POST'])
+@login_required
+def message(id):
+  if not UserConnect.is_friend(id):
+    return redirect(url_for('app.home'))
+  form = MessageForm(request.form)
+  messages = Message.get_friend_messages(current_user.get_id(), id)
+  user = User.select_user_by_id(id)
+  if request.method == 'POST' and form.validate():
+    new_message = Message(current_user.get_id(), id, form.message.data)
+    with db.session.begin(nested=True):
+      new_message.create_message()
+    db.session.commit()
+    return redirect(url_for('app.message', id=id)) # 保存したメッセージを取得
+  return render_template(
+    'message.html', form=form, messages=messages, to_user_id=id, user=user
+    )
 
 @bp.app_errorhandler(404)
 def page_not_found(e):
