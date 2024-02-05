@@ -8,6 +8,8 @@ from flask_login import LoginManager
 from flask_mail import Mail
 from dotenv import load_dotenv
 
+from flaskr.utils.template_filters import replace_newline
+
 load_dotenv()
 login_manager = LoginManager()
 login_manager.login_view = 'app.view'
@@ -52,6 +54,7 @@ def create_app():
   from flaskr.views import bp # viewsで定義するbpをインポート
   
   app.register_blueprint(bp)
+  app.add_template_filter(replace_newline)
   db.init_app(app)
   migrate.init_app(app, db)
   login_manager.init_app(app)
