@@ -15,4 +15,47 @@ body {
   margin-top: 20px;
 }
 
-/* 追加のスタイリングが必要な場合はここに追加 */
+.user-image-mini {
+	width: 50px;
+	height: 50px;
+}
+
+.speech-bubble-dest {
+	position: relative;
+	background: #2ad0df;
+	border-radius: .4em;
+}
+
+.speech-bubble-dest:after {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 50%;
+	width: 0;
+	height: 0;
+	border: 20px solid transparent;
+	border-right-color: #2ad0df;
+	border-left: 0;
+	margin-top: -20px;
+	margin-left: -20px;
+}
+
+.speech-bubble-self {
+	position: relative;
+	background: #d5ea8a;
+	border-radius: .4em;
+}
+
+.speech-bubble-self:after {
+	content: '';
+	position: absolute;
+	right: 0;
+	top: 50%;
+	width: 0;
+	height: 0;
+	border: 20px solid transparent;
+	border-left-color: #d5ea8a;
+	border-right: 0;
+	margin-top: -20px;
+	margin-right: -20px;
+}

@@ -16,7 +16,7 @@
       crossorigin="anonymous"
     />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
+    <link rel="icon" href="{{ url_for('static', filename='icon/roadracer.png') }}">
   </head>
   <body>
     <nav class="navbar navbar-expand-xl navbar-light" style="background-color: #e3f2fd;">
@@ -52,9 +52,10 @@
             </li>
             {# <a class="navbar-brand" href="{{url_for('app.login')}}">ログイン</a>
             <a class="navbar-brand" href="{{url_for('app.register')}}">登録</a> #}
-            {# ここから下２行は完成後削除 #}
+            {# ここから下３行は完成後削除 #}
             <a class="navbar-brand" href="{{url_for('app.user_list')}}">サンプルユーザー一覧</a>
             <a class="navbar-brand" href="{{url_for('app.token_list')}}">サンプルトークン一覧</a>
+            <a class="navbar-brand" href="{{url_for('app.connect_list')}}">コネクト一覧</a>
             {% endif %}
         </div>
       </div>

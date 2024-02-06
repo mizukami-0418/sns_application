@@ -3,11 +3,11 @@ from collections.abc import Mapping, Sequence
 from typing import Any
 from wtforms.form import Form
 from wtforms.fields import (
-  StringField, FileField, PasswordField, SubmitField, HiddenField
+  StringField, FileField, PasswordField, SubmitField, HiddenField, TextAreaField
 )
 from wtforms.validators import DataRequired, Email, EqualTo
 from wtforms import ValidationError, validators
-from flaskr.models import User
+from flaskr.models import User, UserConnect
 from flask_login import current_user
 from flask import flash
 
@@ -141,3 +141,16 @@ class ConnectForm(Form):
   connect_condition = HiddenField()
   to_user_id = HiddenField()
   submit = SubmitField()
+  
+class MessageForm(Form):
+  to_user_id = HiddenField()
+  message = TextAreaField()
+  submit = SubmitField('メッセージ送信')
+  
+  def validate(self):
+    if not super(Form, self).validate():
+      return False
+    is_friend = UserConnect.is_friend(self.to_user_id.data)
+    if not is_friend:
+      return False
+    return True

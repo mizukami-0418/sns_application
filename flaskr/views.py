@@ -4,14 +4,14 @@ from flask import (
   Blueprint, abort, request, render_template, redirect, url_for, flash, session
 )
 from flask_login import login_user, login_required, logout_user, current_user
-from flaskr.models import User, PasswordResetToken, UserConnect
+from flaskr.models import User, PasswordResetToken, UserConnect, Message
 from flaskr import db
 
 from flaskr.forms import (
   LoginForm, RegisterForm, ResetPasswordForm, ForgotPasswordForm,
-  UserForm, ChangePasswordForm, UserSearchForm, ConnectForm
+  UserForm, ChangePasswordForm, UserSearchForm, ConnectForm, MessageForm
 )
-from flask_mail import Message, Mail
+from flask_mail import Mail # Message
 
 
 bp = Blueprint('app', __name__, url_prefix='')
@@ -26,7 +26,20 @@ def home():
       HTML: ホーム画面のHTMLテンプレート。
 
   """
-  return render_template('home.html')
+  friends = requested_friends = requesting_friends = None
+  connect_form = ConnectForm()
+  session['url'] = 'app.home'
+  if current_user.is_authenticated:
+    friends = User.select_friends()
+    requested_friends = User.select_requested_friends()
+    requesting_friends = User.select_requesting_friends()
+  return render_template(
+    'home.html', 
+    friends = friends,
+    requested_friends = requested_friends,
+    requesting_friends = requesting_friends,
+    connect_form = connect_form
+  )
 
 @bp.route('/logout')
 def logout():
@@ -327,6 +340,24 @@ def connect_user():
   next_url = session.pop('url', 'app:home')
   return redirect(url_for(next_url))
 
+@bp.route('/message/<id>', methods=['GET', 'POST'])
+@login_required
+def message(id):
+  if not UserConnect.is_friend(id):
+    return redirect(url_for('app.home'))
+  form = MessageForm(request.form)
+  messages = Message.get_friend_messages(current_user.get_id(), id)
+  user = User.select_user_by_id(id)
+  if request.method == 'POST' and form.validate():
+    new_message = Message(current_user.get_id(), id, form.message.data)
+    with db.session.begin(nested=True):
+      new_message.create_message()
+    db.session.commit()
+    return redirect(url_for('app.message', id=id)) # 保存したメッセージを取得
+  return render_template(
+    'message.html', form=form, messages=messages, to_user_id=id, user=user
+    )
+
 @bp.app_errorhandler(404)
 def page_not_found(e):
   return redirect(url_for('app.home'))
@@ -347,9 +378,6 @@ def user_delete(id):
   user = User.query.get(id)
   db.session.delete(user)
   db.session.commit()
-  # with db.session.begin():
-  #   User.query.filter_by(user.id).delete()
-  # db.session.commit()
   return redirect(url_for('app.user_list'))
 # サンプルデータ削除用トークン一覧
 @bp.route('/tokens')
@@ -362,8 +390,17 @@ def token_delete(id):
   token = PasswordResetToken.query.get(id)
   db.session.delete(token)
   db.session.commit()
-  # with db.session.begin():
-  #   User.query.filter_by(user.id).delete()
-  # db.session.commit()
   return redirect(url_for('app.token_list'))
+# サンプルコネクト削除用コネクト一覧
+@bp.route('/connects')
+def connect_list():
+  connects = UserConnect.query.all()
+  return render_template('connect_list.html', connects=connects)
+# サンプルコネクト削除用メソッド
+@bp.route('/connects/<int:id>/delete', methods=['POST'])
+def connect_delete(id):
+  connect = UserConnect.query.get(id)
+  db.session.delete(connect)
+  db.session.commit()
+  return redirect(url_for('app.connect_list'))
 # ここまで
