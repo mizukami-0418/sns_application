@@ -1,12 +1,15 @@
 # views.py
+from datetime import datetime
 from flask import (
   Blueprint, abort, request, render_template, redirect, url_for, flash
 )
-from flask_login import login_user, login_required, logout_user
+from flask_login import login_user, login_required, logout_user, current_user
 from flaskr.models import User, PasswordResetToken
 from flaskr import db
 
-from flaskr.forms import LoginForm, RegisterForm, ResetPasswordForm, ForgotPasswordForm
+from flaskr.forms import (
+  LoginForm, RegisterForm, ResetPasswordForm, ForgotPasswordForm, UserForm, ChangePasswordForm
+)
 from flask_mail import Message, Mail
 
 
@@ -100,9 +103,8 @@ def register():
     # パスワード設定用URLをメールで送信
     PasswordResetToken.send_password_reset_email(email, token)
     
-    flash(f'パスワード設定用URLをお送りします。ご確認をお願いします。{email}')
+    flash('パスワード設定用URLをお送りします。ご確認をお願いします。')
     
-    return redirect(url_for('app.home'))
   # バリデーションが失敗した場合、register.htmlを再度表示
   return render_template('register.html', form=form)
 
@@ -161,12 +163,12 @@ def forgot_password():
     user = User.select_user_by_email(email)
     if user: # userが存在
       # パスワードリセットトークンを生成し、DBに保存
-      with db.session.begin():
+      with db.session.begin(nested=True):
         token = PasswordResetToken.publish_token(user)
       db.session.commit()
       
       # パスワードリセット用のメールをユーザーに送信
-      PasswordResetToken.send_password_reset_email(user.email, token)
+      PasswordResetToken.send_password_reset_email(email, token)
       
       flash('パスワード再設定用のURLをメールでお送りしました。\
             リンク先より再設定をお願いします。')
@@ -175,6 +177,49 @@ def forgot_password():
       flash('このメールアドレスのユーザーは存在しません')
   # フォームの入力結果や処理結果に基づいて、適切なテンプレートを表示
   return render_template('forgot_password.html', form=form)
+
+@bp.route('/user', methods=['GET', 'POST'])
+@login_required
+def user():
+  form = UserForm(request.form)
+  if request.method == 'POST' and form.validate():
+    user_id = current_user.get_id()
+    user = User.select_user_by_id(user_id)
+    with db.session.begin(nested=True):
+      user.username = form.username.data
+      user.email = form.email.data
+      file = request.files[form.picture_path.name].read()
+      if file:
+        file_name = user_id + ' ' + \
+          str(int(datetime.now().timestamp())) + '.jpg'
+        picture_path = 'flaskr/static/user_image/' + file_name
+        open(picture_path, 'wb').write(file)
+        user.picture_path = 'user_image/' + file_name
+    db.session.commit()
+    flash('ユーザー情報を更新しました')
+  return render_template('user.html', form=form)
+
+@bp.route('/change_password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+  form = ChangePasswordForm(request.form)
+  if request.method == 'POST' and form.validate():
+    user = User.select_user_by_id(current_user.get_id())
+    password = form.password.data # 新しいパスワードの取得
+    with db.session.begin(nested=True):
+      user.save_new_password(password) # 新しいパスワードをユーザーオブジェクトに保存
+    db.session.commit()
+    flash('パスワードの更新を行いました')
+    return redirect(url_for('app.user'))
+  return render_template('change_password.html', form=form)
+
+@bp.app_errorhandler(404)
+def page_not_found(e):
+  return redirect(url_for('app.home'))
+
+@bp.app_errorhandler(500)
+def server_error(e):
+  return render_template('500.html'), 500
 
 
 # サンプルデータ削除用ユーザー一覧

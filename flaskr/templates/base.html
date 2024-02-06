@@ -15,7 +15,7 @@
       integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
   </head>
   <body>
@@ -23,6 +23,7 @@
       <a class="navbar-brand" href="{{url_for('app.home')}}">ホーム</a>
       {% if current_user.is_authenticated %}
       <a class="navbar-brand" href="{{url_for('app.logout')}}">ログアウト</a>
+      <a class="navbar-brand" href="{{url_for('app.user')}}">ユーザー情報編集</a>
       {% else %}
       <a class="navbar-brand" href="{{url_for('app.login')}}">ログイン</a>
       <a class="navbar-brand" href="{{url_for('app.register')}}">登録</a>

@@ -2,7 +2,7 @@
 {% from "_formhelpers.html" import render_field %}
 {% extends "base.html" %}
 {% block title %}
-login - {{ super() }}
+ログイン - {{ super() }}
 {% endblock %}
 {% block content %}
 {% for message in get_flashed_messages() %}
@@ -18,7 +18,7 @@ login - {{ super() }}
     {{ render_field(form.confirm_password) }}
     {{ form.submit() }}
   </form>
-  <a href="{{url_for('app.forgot_password')}}">
+  <a href="{{ url_for('app.forgot_password') }}">
   パスワードをお忘れですか？
   </a>
 </div>

@@ -8,6 +8,8 @@ from wtforms.fields import (
 from wtforms.validators import DataRequired, Email, EqualTo
 from wtforms import ValidationError, validators
 from flaskr.models import User
+from flask_login import current_user
+from flask import flash
 
 class LoginForm(Form):
   """
@@ -90,9 +92,43 @@ class ForgotPasswordForm(Form):
   Methods:
     validate_email: 入力されたメールアドレスが存在するか検証するメソッド。
   """
-  email = StringField('メールアドレス：', validators=[DataRequired(), Email()])
+  email = StringField('メールアドレス：', validators=[DataRequired()])
   submit = SubmitField('パスワードを再設定する')
   
   def validate_email(self, field):
     if not User.select_user_by_email(field.data):
       raise ValidationError('メールアドレスは存在しません')
+
+class UserForm(Form):
+  email = StringField(
+    'メールアドレス：',
+    validators=[DataRequired(), Email('メールアドレスに誤りがあります')]
+  )
+  username = StringField('ユーザー名：', validators=[DataRequired()])
+  picture_path = FileField('プロフィール画像')
+  submit = SubmitField('登録情報更新')
+  
+  def validate(self):
+    if not super(Form, self).validate():
+      return False
+    user = User.select_user_by_email(self.email.data)
+    if user:
+      if user.id != int(current_user.get_id()):
+        flash('メールアドレスは既に登録済みです')
+        return False
+    return True
+
+class ChangePasswordForm(Form):
+  password = PasswordField('更新パスワード：', validators=[DataRequired()])
+  confirm_password = PasswordField('パスワード確認：', validators=[DataRequired()])
+  submit = SubmitField('パスワードを更新する')
+  
+  def validate_confirm_password(form, field):
+    if form.password.data != field.data:
+      raise ValidationError('パスワードが一致しません')
+  
+  def validate_password(self, field):
+    if len(field.data) < 10:
+      raise ValidationError('パスワードは10文字以上で入力してください')
+
+  
