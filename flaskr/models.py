@@ -454,3 +454,10 @@ class Message(db.Model):
         )
       )
     ).order_by(cls.id).all()
+  
+  @classmethod
+  def update_is_read_by_ids(cls, ids):
+    cls.query.filter(cls.id.in_(ids)).update(
+      { 'is_read': 1 },
+      synchronize_session='fetch'
+    )
