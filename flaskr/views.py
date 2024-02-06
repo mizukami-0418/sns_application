@@ -348,6 +348,11 @@ def message(id):
   form = MessageForm(request.form)
   messages = Message.get_friend_messages(current_user.get_id(), id)
   user = User.select_user_by_id(id)
+  read_message_ids = [message.id for message in messages if (not message.is_read) and (message.from_user_id == int(id))]
+  if read_message_ids:
+    with db.session.begin(nested=True):
+      Message.update_is_read_by_ids(read_message_ids)
+    db.session.commit()
   if request.method == 'POST' and form.validate():
     new_message = Message(current_user.get_id(), id, form.message.data)
     with db.session.begin(nested=True):
