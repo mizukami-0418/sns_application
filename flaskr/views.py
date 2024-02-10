@@ -1,7 +1,8 @@
 # views.py
 from datetime import datetime
 from flask import (
-  Blueprint, abort, request, render_template, redirect, url_for, flash, session
+  Blueprint, abort, request, render_template,
+  redirect, url_for, flash, session, jsonify
 )
 from flask_login import login_user, login_required, logout_user, current_user
 from flaskr.models import User, PasswordResetToken, UserConnect, Message
@@ -12,7 +13,7 @@ from flaskr.forms import (
   UserForm, ChangePasswordForm, UserSearchForm, ConnectForm, MessageForm
 )
 from flask_mail import Mail # Message
-
+from flaskr.utils.message_format import make_message_format
 
 bp = Blueprint('app', __name__, url_prefix='')
 mail = Mail()
@@ -362,6 +363,22 @@ def message(id):
   return render_template(
     'message.html', form=form, messages=messages, to_user_id=id, user=user
     )
+
+@bp.route('/message_ajax', methods=['GET'])
+@login_required
+def message_ajax():
+  user_id = request.args.get('user_id', -1, type=int)
+  # 未読メッセージを取得
+  user = User.select_user_by_id(user_id)
+  # 相手から自分への未読メッセージ
+  not_read_messages = Message.select_not_read_messages(user_id, current_user.get_id())
+  # 未読メッセージのidのみを取得
+  not_read_message_ids = [message.id for message in not_read_messages]
+  if not_read_message_ids:
+    with db.session.begin(nested=True):
+      Message.update_is_read_by_ids(not_read_message_ids)
+    db.session.commit()
+  return jsonify(data=make_message_format(user, not_read_messages))
 
 @bp.app_errorhandler(404)
 def page_not_found(e):
