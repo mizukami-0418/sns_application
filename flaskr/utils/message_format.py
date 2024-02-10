@@ -11,12 +11,12 @@ def make_message_format(user, messages):
     message_tag += f'''
       <p>{ user.username }</p>
       </div>
-      <div class="speech-bubble-dest col-lg-4 col-md-8 col-sm-8 col-9">
+      <div class="speech-bubble-dest col-lg-4 col-md-7 col-sm-6 col-6">
     '''
     for splitted_message in replace_newline(message.message):
       message_tag += f'<p>{ urlize(splitted_message) }<p>'
     message_tag += '''
       </div>
-      <div class="col-lg-7 col-md-3 col-sm-1 col-1"></div>
+      <div class="col-lg-7 col-md-3 col-sm-4 col-4"></div>
     '''
   return message_tag
