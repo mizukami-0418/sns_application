@@ -19,18 +19,22 @@
       user_id: user_id
     }, function(data){
       $('#message-form').before(data['data']);
+      let checked_message_ids = data['checked_message_ids']
+      for(let idx = 0; idx < checked_message_ids.length; idx++){
+        $('#self-message-tag-' + checked_message_ids[idx]).append('<p class="text-end">既読</p>')
+      }
     });
   };
 </script>
 <div class="row">
   {% for message in messages %}
     {% if message.from_user_id == current_user.id %}
-    <div class="col-lg-1 offset-lg-6 col-md-1 offset-md-2 col-sm-1 offset-sm-1 col-1">
-      {% if message.is_read %} {# メッセージが読まれている #}
-      <p>既読</p>
+    <div id="self-message-tag-{{message.id}}" class="col-lg-1 offset-lg-6 col-md-1 offset-md-3 col-sm-2 offset-sm-2 col-2 offset-2">
+      {% if message.is_checked %} {# 既読メッセージにチェック済 #}
+      <p class="text-end">既読</p>
       {% endif %}
     </div>
-    <div class="speech-bubble-self col-lg-4 col-md-8 col-sm-8 col-9">
+    <div class="speech-bubble-self col-lg-4 col-md-7 col-sm-6 col-6">
       {% for splitted_message in message.message | replace_newline %}
         <p>{{ splitted_message | urlize }}</p>
       {% endfor %}
@@ -48,15 +52,15 @@
       {% endif %}
       <p>{{ user.username }}</p>
     </div>
-    <div class="speech-bubble-dest col-lg-4 col-md-8 col-sm-8 col-9">
+    <div class="speech-bubble-dest col-lg-4 col-md-7 col-sm-6 col-6">
       {% for splitted_message in message.message | replace_newline %}
         <p>{{ splitted_message | urlize }}</p>
       {% endfor %}
     </div>
-    <div class="col-lg-7 col-md-3 col-sm-1 col-1"></div>
+    <div class="col-lg-7 col-md-3 col-sm-4 col-4"></div>
     {% endif %}
   {% endfor %}
-  <div id="message-form" class="col-lg-4 offset-lg-7 col-md-8 offset-md-4 col-sm-12 col-12">
+  <div id="message-form" class="col-lg-3 offset-lg-6 col-md-6 offset-md-4 col-sm-10 col-10">
     <form method="POST">
       {{ form.csrf_token }}
       {{ form.to_user_id(value=to_user_id) }}
