@@ -347,9 +347,17 @@ def message(id):
   if not UserConnect.is_friend(id):
     return redirect(url_for('app.home'))
   form = MessageForm(request.form)
+  # フレンドのメッセージを取得
   messages = Message.get_friend_messages(current_user.get_id(), id)
   user = User.select_user_by_id(id)
+  # 未読メッセージを取得
   read_message_ids = [message.id for message in messages if (not message.is_read) and (message.from_user_id == int(id))]
+  not_checked_message_ids = [message.id for message in messages if message.is_read and (not message.is_checked) and (message.from_user_id == int(current_user.get_id()))]
+  if not_checked_message_ids:
+    with db.session(nested=True):
+      Message.update_is_checked_by_id(not_checked_message_ids)
+    db.session.commit()
+  # read_message_idsのis_readをTrueに変更
   if read_message_ids:
     with db.session.begin(nested=True):
       Message.update_is_read_by_ids(read_message_ids)
@@ -378,7 +386,14 @@ def message_ajax():
     with db.session.begin(nested=True):
       Message.update_is_read_by_ids(not_read_message_ids)
     db.session.commit()
-  return jsonify(data=make_message_format(user, not_read_messages))
+  # 自分の既読メッセージで未チェックを取得
+  not_checked_messages = Message.select_not_checked_messages(current_user.get_id(), user.id)
+  not_checked_message_ids = [not_checked_message.id for not_checked_message in not_checked_messages]
+  if not_checked_message_ids:
+    with db.session.begin(nested=True):
+      Message.update_is_checked_by_ids(not_checked_message_ids)
+    db.session.commit()
+  return jsonify(data=make_message_format(user, not_read_messages), checked_message_ids = not_checked_message_ids)
 
 @bp.app_errorhandler(404)
 def page_not_found(e):
