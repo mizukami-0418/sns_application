@@ -144,8 +144,8 @@ class ConnectForm(FlaskForm):
   
 class MessageForm(FlaskForm):
   to_user_id = HiddenField()
-  message = TextAreaField()
-  submit = SubmitField('メッセージ送信')
+  message = TextAreaField('メッセージ')
+  submit = SubmitField('送信')
   
   def validate(self):
     if not super(FlaskForm, self).validate():
