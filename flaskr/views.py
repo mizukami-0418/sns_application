@@ -5,15 +5,15 @@ from flask import (
   redirect, url_for, flash, session, jsonify
 )
 from flask_login import login_user, login_required, logout_user, current_user
-from flaskr.models import User, PasswordResetToken, UserConnect, Message
+from flaskr.models import User, PasswordResetToken, UserConnect, TalkMessage
 from flaskr import db
 
 from flaskr.forms import (
   LoginForm, RegisterForm, ResetPasswordForm, ForgotPasswordForm,
   UserForm, ChangePasswordForm, UserSearchForm, ConnectForm, MessageForm
 )
-from flask_mail import Mail # Message
-from flaskr.utils.message_format import make_message_format
+from flask_mail import Mail, Message
+from flaskr.utils.message_format import make_message_format, make_old_message_format
 
 bp = Blueprint('app', __name__, url_prefix='')
 mail = Mail()
@@ -279,7 +279,7 @@ def change_password():
     return redirect(url_for('app.user'))
   return render_template('change_password.html', form=form)
 
-@bp.route('/user_search', methods=['GET', 'POST'])
+@bp.route('/user_search', methods=['GET'])
 @login_required
 def user_search():
   """
@@ -309,16 +309,22 @@ def user_search():
   connect_form = ConnectForm()
   session['url'] = 'app.user_search'
   users = None
-  if request.method == 'POST' and form.validate():
-    username = form.username.data
-    users = User.search_by_name(username)
+  user_name = request.args.get('username', None, type=str)
+  next_url = prev_url = None
+  if user_name:
+    page = request.args.get('page', 1, type=int)
+    posts = User.search_by_name(user_name, page)
+    next_url = url_for('app.user_search', page=posts.next_num, username=user_name) if posts.has_next else None
+    prev_url = url_for('app.user_search', page=posts.prev_num, username=user_name) if posts.has_prev else None
+    users = posts.items
     # UserテーブルとUserConnectテーブルを紐付け、statusを確認する
     # from 自分のID, to 相手のID, status=1:自分から申請中
     # to 自分のID, from 相手のID, status=1:相手から申請中
     # status=2:フレンド登録済み
     # レコードが存在しない場合はどちらでない
   return render_template(
-    'user_search.html', form=form, connect_form=connect_form, users=users
+    'user_search.html', form=form, connect_form=connect_form,
+    users=users, next_url=next_url, prev_url=prev_url
   )
 
 @bp.route('/connect_user', methods=['POST'])
@@ -348,22 +354,22 @@ def message(id):
     return redirect(url_for('app.home'))
   form = MessageForm(request.form)
   # フレンドのメッセージを取得
-  messages = Message.get_friend_messages(current_user.get_id(), id)
+  messages = TalkMessage.get_friend_messages(current_user.get_id(), id)
   user = User.select_user_by_id(id)
   # 未読メッセージを取得
   read_message_ids = [message.id for message in messages if (not message.is_read) and (message.from_user_id == int(id))]
   not_checked_message_ids = [message.id for message in messages if message.is_read and (not message.is_checked) and (message.from_user_id == int(current_user.get_id()))]
   if not_checked_message_ids:
     with db.session(nested=True):
-      Message.update_is_checked_by_id(not_checked_message_ids)
+      TalkMessage.update_is_checked_by_id(not_checked_message_ids)
     db.session.commit()
   # read_message_idsのis_readをTrueに変更
   if read_message_ids:
     with db.session.begin(nested=True):
-      Message.update_is_read_by_ids(read_message_ids)
+      TalkMessage.update_is_read_by_ids(read_message_ids)
     db.session.commit()
   if request.method == 'POST' and form.validate():
-    new_message = Message(current_user.get_id(), id, form.message.data)
+    new_message = TalkMessage(current_user.get_id(), id, form.message.data)
     with db.session.begin(nested=True):
       new_message.create_message()
     db.session.commit()
@@ -379,21 +385,32 @@ def message_ajax():
   # 未読メッセージを取得
   user = User.select_user_by_id(user_id)
   # 相手から自分への未読メッセージ
-  not_read_messages = Message.select_not_read_messages(user_id, current_user.get_id())
+  not_read_messages = TalkMessage.select_not_read_messages(user_id, current_user.get_id())
   # 未読メッセージのidのみを取得
   not_read_message_ids = [message.id for message in not_read_messages]
   if not_read_message_ids:
     with db.session.begin(nested=True):
-      Message.update_is_read_by_ids(not_read_message_ids)
+      TalkMessage.update_is_read_by_ids(not_read_message_ids)
     db.session.commit()
   # 自分の既読メッセージで未チェックを取得
-  not_checked_messages = Message.select_not_checked_messages(current_user.get_id(), user.id)
+  not_checked_messages = TalkMessage.select_not_checked_messages(current_user.get_id(), user.id)
   not_checked_message_ids = [not_checked_message.id for not_checked_message in not_checked_messages]
   if not_checked_message_ids:
     with db.session.begin(nested=True):
-      Message.update_is_checked_by_ids(not_checked_message_ids)
+      TalkMessage.update_is_checked_by_ids(not_checked_message_ids)
     db.session.commit()
   return jsonify(data=make_message_format(user, not_read_messages), checked_message_ids = not_checked_message_ids)
+
+@bp.route('/load_old_messages', methods=['GET'])
+@login_required
+def load_old_messages():
+  user_id = request.args.get('user_id', -1, type=int)
+  offset_value = request.args.get('offset_value', -1, type=int)
+  if user_id == -1 or offset_value == -1:
+    return
+  messages = TalkMessage.get_friend_messages(current_user.get_id(), user_id, offset_value * 50)
+  user = User.select_user_by_id(user_id)
+  return jsonify(data=make_old_message_format(user, messages))
 
 @bp.app_errorhandler(404)
 def page_not_found(e):
