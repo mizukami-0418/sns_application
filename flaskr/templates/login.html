@@ -5,6 +5,7 @@
 ログイン - {{ super() }}
 {% endblock %}
 {% block content %}
+<h1 class="text-primary">ログイン</h1>
 {% for message in get_flashed_messages() %}
 <div class="alert alert-info" role="alert">
   {{ message }}
