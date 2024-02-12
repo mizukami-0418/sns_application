@@ -4,7 +4,8 @@ from flaskr import db, login_manager
 from flask_bcrypt import generate_password_hash, check_password_hash
 from flask_login import UserMixin, current_user
 from sqlalchemy.orm import aliased
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, or_, desc
+from flask_sqlalchemy import SQLAlchemy
 
 from datetime import datetime, timedelta
 from uuid import uuid4
@@ -146,7 +147,7 @@ class User(UserMixin, db.Model):
   
   # UserConnectとouterjoinで紐付ける
   @classmethod
-  def search_by_name(cls, username):
+  def search_by_name(cls, username, page=1):
     """
     ユーザー名で検索して一致するユーザーを返します。
 
@@ -185,7 +186,7 @@ class User(UserMixin, db.Model):
       cls.id, cls.username, cls.picture_path,
       user_connect1.status.label("joined_status_to_from"),
       user_connect2.status.label("joined_status_from_to")
-    ).all()
+    ).order_by(cls.username).paginate(page=page, per_page=5, error_out=False)
     
   @classmethod
   def select_friends(cls):
@@ -316,7 +317,7 @@ class PasswordResetToken(db.Model):
     body = f'パスワード設定用URL: http://127.0.0.1:5000/reset_password/{token}'
     msg = Message(subject, recipients=[email], body=body)
     mail.send(msg)
-  
+    
   @classmethod
   def get_user_id_by_token(cls, token):
     """
@@ -415,7 +416,7 @@ class UserConnect(db.Model):
     ).first()
     return True if user else False
 
-class Message(db.Model):
+class TalkMessage(db.Model):
   
   __tablename__ = 'messages'
   
@@ -442,7 +443,7 @@ class Message(db.Model):
     db.session.add(self)
     
   @classmethod
-  def get_friend_messages(cls, id1, id2):
+  def get_friend_messages(cls, id1, id2, offset_value=0, limit_value=50):
     return cls.query.filter(
       or_(
         and_(
@@ -454,7 +455,7 @@ class Message(db.Model):
           cls.to_user_id == id1
         )
       )
-    ).order_by(cls.id).all()
+    ).order_by(desc(cls.id)).offset(offset_value).limit(limit_value).all()
   
   @classmethod
   def update_is_read_by_ids(cls, ids):
