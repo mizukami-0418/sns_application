@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 from flaskr.utils.template_filters import replace_newline
 
-load_dotenv()
+load_dotenv(override=True)
 login_manager = LoginManager()
 login_manager.login_view = 'app.view'
 login_manager.login_message = 'ログインをお願いします'
