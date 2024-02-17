@@ -15,20 +15,26 @@
       integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
       crossorigin="anonymous"
     />
+    {# Google Fonts #}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Raleway:wght@800&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='icon/roadracer.png') }}">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
   </head>
   <body>
-    <nav class="navbar navbar-expand-xl navbar-light" style="background-color: #e3f2fd;">
+    <nav class="navbar navbar-expand-xl navbar-light">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">ともトーク</a>
+        <a class="navbar-brand fs-3 text-primary" href="#"><b>ちゃプリ</b></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarLight" aria-controls="navbarLight" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse show" id="navbarLight">
           <ul class="navbar-nav me-auto mb-2 mb-xl-0">
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="{{url_for('app.home')}}">Home</a>
+              <a class="nav-link active" aria-current="page" href="{{url_for('app.home')}}">ホーム</a>
             </li>
             {% if current_user.is_authenticated %}
             <li class="nav-item">
@@ -57,6 +63,7 @@
             <a class="navbar-brand" href="{{url_for('app.token_list')}}">サンプルトークン一覧</a>
             <a class="navbar-brand" href="{{url_for('app.connect_list')}}">コネクト一覧</a>
             {% endif %}
+          </ul>
         </div>
       </div>
     </nav>
