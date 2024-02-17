@@ -21,11 +21,10 @@ mail = Mail()
 @bp.route('/')
 def home():
   """
-    ホーム画面を表示するルート関数。
+  ホーム画面を表示するルート関数。
 
-    Returns:
-      HTML: ホーム画面のHTMLテンプレート。
-
+  Returns:
+    HTML: ホーム画面のHTMLテンプレート。
   """
   friends = requested_friends = requesting_friends = None
   connect_form = ConnectForm()
@@ -45,11 +44,10 @@ def home():
 @bp.route('/logout')
 def logout():
   """
-    ログアウトを処理するルート関数。
+  ログアウトを処理するルート関数。
 
-    Returns:
-      redirect: ログアウト後にホーム画面にリダイレクトする。
-
+  Returns:
+    redirect: ログアウト後にホーム画面にリダイレクトする。
   """
   logout_user() # ログアウト実行
   return redirect(url_for('app.home')) # ログアウトしたらホーム画面へ
@@ -57,11 +55,10 @@ def logout():
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
   """
-    ログインを処理するルート関数。
+  ログインを処理するルート関数。
 
-    Returns:
-      HTML: ログイン画面のHTMLテンプレート。
-
+  Returns:
+    HTML: ログイン画面のHTMLテンプレート。
   """
   form = LoginForm(request.form)
   if request.method == 'POST' and form.validate():
@@ -86,12 +83,12 @@ def login():
 @bp.route('/register', methods=["GET", "POST"])
 def register():
   """
-    新しいユーザーを登録し、パスワードリセット用のトークンを生成してメールを送信します。
+  新しいユーザーを登録し、パスワードリセット用のトークンを生成してメールを送信します。
 
-    このメソッドは新しいユーザーを登録し、パスワードリセットトークンを生成して、
-    ユーザーに対してそのトークンを含むメールを送信します。ユーザーには
-    パスワードリセット用のURLが含まれており、それをクリックすることでパスワード
-    をリセットできるようになります。
+  このメソッドは新しいユーザーを登録し、パスワードリセットトークンを生成して、
+  ユーザーに対してそのトークンを含むメールを送信します。ユーザーには
+  パスワードリセット用のURLが含まれており、それをクリックすることでパスワード
+  をリセットできるようになります。
 
   Args:
     self: インスタンス自体。
@@ -133,7 +130,6 @@ def reset_password(token):
 
   Returns:
     HTML: パスワードリセット画面のHTMLテンプレート。
-
   """
   form = ResetPasswordForm(request.form)
   # PasswordResetTokenクラスのトークンからユーザーidを取得
@@ -197,29 +193,28 @@ def forgot_password():
 @login_required
 def user():
   """
-    ユーザーページを処理します。
+  ユーザーページを処理します。
 
-    このルートは、ログイン済みユーザーが自分のユーザーページにアクセスし、ユーザー情報を表示および更新できるようにします。
+  このルートは、ログイン済みユーザーが自分のユーザーページにアクセスし、ユーザー情報を表示および更新できるようにします。
 
-    Args:なし
+  Args:なし
 
-    Returns:
-      リクエストメソッドがGETなら:
-        'user.html'テンプレートを描画し、ユーザーの情報を表示するためのUserFormを提供します。
+  Returns:
+    リクエストメソッドがGETなら:
+      'user.html'テンプレートを描画し、ユーザーの情報を表示するためのUserFormを提供します。
 
-      リクエストメソッドがPOSTでフォームが有効な場合:
-        ログイン中のユーザーのIDを取得します。
-        Userクラスの 'select_user_by_id' メソッドを使用して、ユーザーIDに対応するユーザーを取得します。
-        トランザクション内でユーザーのユーザー名とメールを更新します。
-        フォームからアップロードされたユーザーのプロフィール画像を保存し、画像のパスをユーザーオブジェクトに設定します。
-        データベースセッションをコミットし、フラッシュメッセージを表示します。
+    リクエストメソッドがPOSTでフォームが有効な場合:
+      ログイン中のユーザーのIDを取得します。
+      Userクラスの 'select_user_by_id' メソッドを使用して、ユーザーIDに対応するユーザーを取得します。
+      トランザクション内でユーザーのユーザー名とメールを更新します。
+      フォームからアップロードされたユーザーのプロフィール画像を保存し、画像のパスをユーザーオブジェクトに設定します。
+      データベースセッションをコミットし、フラッシュメッセージを表示します。
 
-    Note:
-        このルートはユーザーがログインしていることを要求します（@login_requiredでデコレートされています）。
+  Note:
+    このルートはユーザーがログインしていることを要求します（@login_requiredでデコレートされています）。
 
-    Example:
-        フォームを使用してユーザー情報を更新し、データベースにコミットすると、フラッシュメッセージが表示されます。
-
+  Example:
+    フォームを使用してユーザー情報を更新し、データベースにコミットすると、フラッシュメッセージが表示されます。
   """
   form = UserForm(request.form)
   if request.method == 'POST' and form.validate():
@@ -243,15 +238,15 @@ def user():
 @login_required
 def change_password():
   """
-    パスワード変更ページを処理します。
+  パスワード変更ページを処理します。
 
-    このルートは、ログイン済みユーザーが自分のアカウントのパスワードを変更できるようにします。
+  このルートは、ログイン済みユーザーが自分のアカウントのパスワードを変更できるようにします。
 
-    Args:なし
+  Args: None
 
-    Returns:
-      リクエストメソッドがGETなら:
-        'change_password.html'テンプレートを描画し、パスワード変更用のChangePasswordFormを提供します。
+  Returns:
+    リクエストメソッドがGETなら:
+      'change_password.html'テンプレートを描画し、パスワード変更用のChangePasswordFormを提供します。
 
       リクエストメソッドがPOSTでフォームが有効な場合:
         ログイン中のユーザーのIDを使用してユーザーオブジェクトを取得します。
@@ -260,14 +255,13 @@ def change_password():
         データベースセッションをコミットし、フラッシュメッセージを表示します。
         ユーザーのアカウントページにリダイレクトします。
 
-    Note:
-        このルートはユーザーがログインしていることを要求します（@login_requiredでデコレートされています）。
+  Note:
+    このルートはユーザーがログインしていることを要求します（@login_requiredでデコレートされています）。
 
-    Example:
-        フォームを使用してパスワードを変更し、データベースにコミットすると、フラッシュメッセージが表示され、
-        ユーザーはアカウントページにリダイレクトされます。
-
-    """
+  Example:
+    フォームを使用してパスワードを変更し、データベースにコミットすると、フラッシュメッセージが表示され、
+    ユーザーはアカウントページにリダイレクトされます。
+  """
   form = ChangePasswordForm(request.form)
   if request.method == 'POST' and form.validate():
     user = User.select_user_by_id(current_user.get_id())
@@ -283,27 +277,26 @@ def change_password():
 @login_required
 def user_search():
   """
-    ユーザー検索機能
+  ユーザー検索機能
 
-    ログイン済みのユーザーがユーザー名で他のユーザーを検索できる。
+  ログイン済みのユーザーがユーザー名で他のユーザーを検索できる。
 
-    Args:なし
+  Args: None
 
-    Returns:
-      リクエストメソッドがGETなら:
-        'user_search.html'テンプレートを描画し、入力用のUserSearchFormを提供します。
+  Returns:
+    リクエストメソッドがGETなら:
+      'user_search.html'テンプレートを描画し、入力用のUserSearchFormを提供します。
 
-      リクエストメソッドがPOSTでフォームが有効な場合:
-        提出されたフォームデータからユーザー名を取得します。
-        Userクラスの 'search_by_name' メソッドを呼び出して、提供されたユーザー名に一致するユーザーを取得します。
-        'user_search.html'テンプレートを描画し、UserSearchFormと一致するユーザーのリストを提供します。
+    リクエストメソッドがPOSTでフォームが有効な場合:
+      提出されたフォームデータからユーザー名を取得します。
+      Userクラスの 'search_by_name' メソッドを呼び出して、提供されたユーザー名に一致するユーザーを取得します。
+      'user_search.html'テンプレートを描画し、UserSearchFormと一致するユーザーのリストを提供します。
 
-    Note:
-      このルートはユーザーがログインしていることを要求します（@login_requiredでデコレートされています）。
+  Note:
+    このルートはユーザーがログインしていることを要求します（@login_requiredでデコレートされています）。
 
-    Example:
-      有効な検索フォームを送信すると、テンプレートが検索結果とともに描画されます。
-
+  Example:
+    有効な検索フォームを送信すると、テンプレートが検索結果とともに描画されます。
   """
   form = UserSearchForm(request.form)
   connect_form = ConnectForm()
@@ -330,6 +323,14 @@ def user_search():
 @bp.route('/connect_user', methods=['POST'])
 @login_required
 def connect_user():
+  """
+  ユーザー接続の処理を行う関数。
+
+  ユーザー接続フォームからのPOSTリクエストを処理し、友達の接続やリクエストの受諾を行います。
+
+  Returns:
+    redirect: ユーザーを指定されたURLにリダイレクトします。
+  """
   form = ConnectForm(request.form)
   if request.method == 'POST' and form.validate():
     if form.connect_condition.data == 'connect':
@@ -350,6 +351,17 @@ def connect_user():
 @bp.route('/message/<id>', methods=['GET', 'POST'])
 @login_required
 def message(id):
+  """
+  メッセージの表示と送信を管理する関数。
+
+  フレンドとのメッセージの表示、未読メッセージの更新、および新しいメッセージの送信を処理します。
+
+  Args:
+    id (int): メッセージの相手となるユーザーID。
+
+  Returns:
+    render_template or redirect: メッセージ画面の表示またはリダイレクトを行います。
+  """
   if not UserConnect.is_friend(id):
     return redirect(url_for('app.home'))
   form = MessageForm(request.form)
@@ -381,6 +393,14 @@ def message(id):
 @bp.route('/message_ajax', methods=['GET'])
 @login_required
 def message_ajax():
+  """
+  Ajaxリクエストに対する未読メッセージの処理を行う関数。
+
+  Ajaxリクエストで送られたユーザーIDに対して、未読メッセージの取得、更新、および未チェックメッセージの処理を行います。
+
+  Returns:
+    jsonify: 未読メッセージと未チェックメッセージの情報をJSON形式で返します。
+  """
   user_id = request.args.get('user_id', -1, type=int)
   # 未読メッセージを取得
   user = User.select_user_by_id(user_id)
@@ -404,6 +424,14 @@ def message_ajax():
 @bp.route('/load_old_messages', methods=['GET'])
 @login_required
 def load_old_messages():
+  """
+  過去のメッセージの読み込みに関する処理を行う関数。
+
+  Ajaxリクエストで送られたユーザーIDとオフセット値に基づいて、過去のメッセージを取得して返します。
+
+  Returns:
+    jsonify: 過去のメッセージの情報をJSON形式で返します。
+  """
   user_id = request.args.get('user_id', -1, type=int)
   offset_value = request.args.get('offset_value', -1, type=int)
   if user_id == -1 or offset_value == -1:
