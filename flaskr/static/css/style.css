@@ -1,18 +1,26 @@
 /* style.css */
 
 body {
-  background-color: #87CEEB; /* スカイブルー */
+  background-color: #fff462;
+	max-width: 1000px;
+	width: 100%;
+	margin: auto;
+	font-family: "Kosugi Maru", sans-serif;
+  font-weight: 400;
+  font-style: normal;
 }
 
 .navbar {
-  background-color: #87CEEB; /* スカイブルー */
+	background-color: #ffffc6;
 }
 
 .container {
   background-color: #FFF; /* 白色 */
   padding: 20px;
-  border-radius: 10px;
-  margin-top: 20px;
+  border-radius: 20px;
+	border: thick double #2ad0df;
+	margin-top: 20px;
+	max-width: 80%;
 }
 
 .user-image-mini {
@@ -20,11 +28,16 @@ body {
 	height: 50px;
 }
 
+.images {
+	max-width: 80%;
+}
+
 .speech-bubble-dest {
 	position: relative;
 	background: #2ad0df;
 	border-radius: 1.0em;
-	margin-bottom: 20px;
+	margin-top: 10px; 
+	margin-bottom: 10px;
 }
 
 .speech-bubble-dest:after {
@@ -45,7 +58,8 @@ body {
 	position: relative;
 	background: #d5ea8a;
 	border-radius: 1.0em;
-	margin-bottom: 20px;
+	margin-top: 10px; 
+	margin-bottom: 10px;
 }
 
 .speech-bubble-self:after {
@@ -60,4 +74,17 @@ body {
 	border-right: 0;
 	margin-top: -10px;
 	margin-right: -10px;
+}
+
+/* メディアスクリーン */
+@media screen and (max-width:700px) {
+  .container {
+    max-width: 90%;
+	}
+}
+
+@media screen and (max-width:480px) {
+  .container {
+    max-width: 100%;
+	}
 }
