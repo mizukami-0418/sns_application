@@ -12,6 +12,7 @@
     let scroll = (document.scrollingElement || document.body);
     scroll.scrollTop = scroll.scrollHeight;
   });
+
   let user_id = "{{ to_user_id }}";
   offset_value = 1;
   function get_new_messages(){
@@ -47,54 +48,50 @@
   </div>
   {% for message in messages | reverse %}
     {% if message.from_user_id == current_user.id %}
-    <div id="self-message-tag-{{message.id}}" class="p-1 col-lg-1 offset-lg-6 col-md-2 offset-md-2 col-sm-3 offset-sm-1 col-3 offset-1">
-      <p class="text-end my-0">{{ message.create_at.strftime('%m/%d %H:%M') }}</p>
+    <div id="self-message-tag-{{message.id}}" class="col-4">
+      <p class="text-end m-0 text-black-50" style="font-size: 15px;">{{ message.create_at.strftime('%m/%d') }}</p>
+      <p class="text-end text-black-50" style="font-size: 15px;">{{ message.create_at.strftime('%H:%M') }}</p>
       {% if message.is_checked %} {# 既読メッセージにチェック済 #}
-      <p class="text-end text-black-50 my-0">既読</p>
+      <p class="text-end text-black-50 mt-1 mb-0 mx-0" style="font-size: 15px;">既読</p>
       {% endif %}
-      {# 投稿時刻を表示する #}
-      {# <p class="text-end my-0">{{ message.create_at.strftime('%Y年') }}</p> #}
-      {# <p class="text-end my-0">{{ message.create_at.strftime('%m月%d日') }}</p> #}
-      {# <p class="text-end my-0">{{ message.create_at.strftime('%m/%d %H:%M') }}</p> #}
     </div>
-    <div class="speech-bubble-self col-lg-4 col-md-7 col-sm-6 col-6">
+    <div class="speech-bubble-self col-6">
       {% for splitted_message in message.message | replace_newline %}
         <p>{{ splitted_message | urlize }}</p>
       {% endfor %}
     </div>
-    <div class="col-lg-1 col-md-1 col-sm-2 col-2">
+    <div class="col-2">
       {% if current_user.picture_path %}
         <img class="user-image-mini" src="{{ url_for('static', filename=current_user.picture_path) }}">
       {% endif %}
       <p>{{ current_user.username }}</p>
     </div>
     {% else %}
-    <div class="col-lg-1 col-md-1 col-sm-2 col-2">
+    <div class="col-2 ps-1">
       {% if user.picture_path %}
         <img class="user-image-mini" src="{{ url_for('static', filename=user.picture_path) }}">
       {% endif %}
       <p>{{ user.username }}</p>
     </div>
-    <div class="speech-bubble-dest col-lg-4 col-md-7 col-sm-6 col-6">
+    <div class="speech-bubble-dest col-6">
       {% for splitted_message in message.message | replace_newline %}
         <p>{{ splitted_message | urlize }}</p>
       {% endfor %}
     </div>
-    <div class="p-1 col-lg-7 col-md-4 col-sm-4 col-4">
+    <div class="col-4">
       {# 投稿時刻を表示する #}
-      <p class="m-0">{{ message.create_at.strftime('%Y年') }}</p>
-      <p class="m-0">{{ message.create_at.strftime('%m月%d日') }}</p>
-      <p class="m-0">{{ message.create_at.strftime('%H:%M') }}</p>
+      <p class="m-0 text-black-50" style="font-size: 15px;">{{ message.create_at.strftime('%m/%d') }}</p>
+      <p class="text-black-50" style="font-size: 15px;">{{ message.create_at.strftime('%H:%M') }}</p>
     </div>
     {% endif %}
   {% endfor %}
-  <div id="message-form" class="col-lg-4 offset-lg-7 col-md-6 offset-md-4 col-sm-8 col-12">
+  <div id="message-form" class="col-10 offset-1">
     <form method="POST">
       {{ form.csrf_token }}
       {{ form.to_user_id(value=to_user_id) }}
-      {{ render_field(form.message, cols="50", rows="5",
-      class="form-control rounded bg-light text-dark bg-opacity-10") }}
-      {{ form.submit()}}
+      {{ render_field(form.message, cols="50", rows="3",
+      class="form-control rounded bg-light text-dark bg-opacity-10 border-primary") }}
+      {{ form.submit(class="my-2")}}
     </form>
   </div>
 </div>

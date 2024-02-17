@@ -5,19 +5,20 @@
 ログイン - {{ super() }}
 {% endblock %}
 {% block content %}
-<h1 class="text-primary">ログイン</h1>
+<h1 class="text-primary" style="text-align: center;">ログイン</h1>
 {% for message in get_flashed_messages() %}
 <div class="alert alert-info" role="alert">
   {{ message }}
 </div>
 {% endfor %}
 <div class="row">
-  <form method="POST">
+  <form method="POST" style="border: thick double #3498db;
+    border-radius: 20px; padding: 40px; margin: 20px auto; max-width: fit-content">
     {{ form.csrf_token }}
     {{ render_field(form.email) }}
     {{ render_field(form.password) }}
     {{ render_field(form.confirm_password) }}
-    {{ form.submit() }}
+    {{ form.submit(class="my-2") }}
   </form>
   <a href="{{ url_for('app.forgot_password') }}">
   パスワードをお忘れですか？
