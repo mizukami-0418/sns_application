@@ -598,3 +598,42 @@ class TalkMessage(db.Model):
         cls.is_checked == 0
       )
     ).order_by(cls.id).all()
+
+class UserContact(db.Model):
+  
+  __tablename__ = 'user_contacts'
+  
+  id = db.Column(db.Integer, primary_key=True)
+  user_id = db.Column(
+    db.Integer, db.ForeignKey('users.id'), index=True, nullable=False
+  )
+  inquiry = db.Column(db.Text, nullable=False)
+  create_at = db.Column(db.DateTime, default=datetime.now)
+  update_at = db.Column(db.DateTime, default=datetime.now)
+  
+  def __init__(self, user_id, inquiry):
+    self.user_id = user_id
+    self.inquiry = inquiry
+    
+  # お問い合わせメールを送信する関数
+  @classmethod
+  def send_contact_email(cls, user_id, username, email, inquiry):
+    # 送信先のメールアドレス
+    recipient_email = 'ff10mm11yy23@yahoo.co.jp'
+    
+    # 件名の作成
+    subject = f'{username}様からお問い合わせあり'
+    # メールの本文にcurrent_userの情報を追加
+    email_body = f'ユーザーID: {user_id}\n'
+    email_body += f'ユーザー名: {username}\n'
+    email_body += f'Email: {email}\n\n'
+    email_body += f'問い合わせ内容:\n{inquiry}'
+
+    # メールを作成
+    msg = Message(subject=subject, recipients=[recipient_email], body=email_body)
+
+    # メールを送信
+    mail.send(msg)
+  
+  def create_new_contact(self):
+    db.session.add(self)
