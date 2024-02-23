@@ -225,3 +225,7 @@ class MessageForm(FlaskForm):
     if not is_friend:
       return False
     return True
+  
+class ContactForm(FlaskForm):
+    body = TextAreaField('お問い合わせ内容', validators=[DataRequired()])
+    submit = SubmitField('送信')
