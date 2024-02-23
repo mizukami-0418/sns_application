@@ -16,6 +16,11 @@ home - {{ super() }}
     <p>ユーザー名：{{ current_user.username }}</p>
     <p>メールアドレス：{{ current_user.email }}</p>
   </div>
+  {% for message in get_flashed_messages() %}
+  <div class="alert alert-info" role="alert">
+  {{ message }}
+  </div>
+  {% endfor %}
   <div class="container mt-4">
     <table class="table table-striped caption-top table-bordered border-primary">
       <caption class="bg-info text-white fw-bold text-center fs-2">フレンド一覧</caption>
@@ -108,15 +113,15 @@ home - {{ super() }}
   
   {% else %}
   <div class="text-center" style="padding: 20px;">
-    <h1 style="color:#622d18;" class="fs-1">ちゃプリ</h1>
+    <h3>1 on 1 のチャットアプリ</h3>
+    <h1 style="color:#622d18; text-shadow:0 0 15px #dbea06fe;" class="fs-1"><b>ちゃプリ</b></h1>
     <img class="images" src="{{ url_for('static', filename='images/kids_yarn_phone.png') }}" alt="糸電話の画像">
     <p class="text-secondary fs-5">ログイン or ユーザー登録をお願いします</p>
+    <p class="text-danger">
+    ※ ことばづかいに気をつけようね。お友達を傷つけるようなことは言わないこと。<br>
+    みんなのおやくそくだよ！！！！！！！！    by さくしゃ
+    </p>
   </div>
   {% endif %}
 </div>
-{% for message in get_flashed_messages() %}
-<div class="alert alert-info" role="alert">
-  {{ message }}
-</div>
-{% endfor %}
 {% endblock %}
