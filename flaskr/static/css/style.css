@@ -1,7 +1,7 @@
 /* style.css */
 
 body {
-  background-color: #fff462;
+  background-color: #eae7b3;
 	max-width: 1000px;
 	width: 100%;
 	margin: auto;
@@ -11,7 +11,7 @@ body {
 }
 
 .navbar {
-	background-color: #ffffc6;
+	background-color: #b5f9d6;
 }
 
 .container {
