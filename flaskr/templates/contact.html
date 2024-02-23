@@ -1,0 +1,17 @@
+{# contact.html #}
+{% from "_formhelpers.html" import render_field %}
+{% extends "base.html" %}
+{% block title %}
+contact - {{ super() }}
+{% endblock %}
+{% block content %}
+<h1 class="text-primary" style="text-align: center;">お問い合わせ</h1>
+<div class="row">
+  <form method="POST" style="border: thick double #3498db;
+    border-radius: 20px; padding: 40px; margin: 20px auto; max-width: fit-content">
+    {{ form.csrf_token }}
+    {{ render_field(form.body) }}
+    {{ form.submit(class="my-2") }}
+  </form>
+</div>
+{% endblock %}
