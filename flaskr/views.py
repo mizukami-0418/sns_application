@@ -5,12 +5,13 @@ from flask import (
   redirect, url_for, flash, session, jsonify
 )
 from flask_login import login_user, login_required, logout_user, current_user
-from flaskr.models import User, PasswordResetToken, UserConnect, TalkMessage
+from flaskr.models import User, PasswordResetToken, UserConnect, TalkMessage, UserContact
 from flaskr import db
 
 from flaskr.forms import (
   LoginForm, RegisterForm, ResetPasswordForm, ForgotPasswordForm,
-  UserForm, ChangePasswordForm, UserSearchForm, ConnectForm, MessageForm
+  UserForm, ChangePasswordForm, UserSearchForm, ConnectForm, MessageForm,
+  ContactForm
 )
 from flask_mail import Mail, Message
 from flaskr.utils.message_format import make_message_format, make_old_message_format
@@ -160,11 +161,9 @@ def forgot_password():
     入力され、存在するユーザーであれば、パスワードリセット用のトークン
     を生成し、ユーザーにメールで送信します。
 
-    Args:
-      None
+    Args:None
 
-    Returns:
-      flask.Response: フォームの入力結果や処理結果に基づいたレスポンス。
+    Returns:flask.Response: フォームの入力結果や処理結果に基づいたレスポンス。
   """
   # ForgotPasswordForm インスタンスの作成
   form = ForgotPasswordForm(request.form)
@@ -439,6 +438,28 @@ def load_old_messages():
   messages = TalkMessage.get_friend_messages(current_user.get_id(), user_id, offset_value * 50)
   user = User.select_user_by_id(user_id)
   return jsonify(data=make_old_message_format(user, messages))
+
+# お問い合わせを追加
+@bp.route('/contact', methods=['GET', 'POST'])
+@login_required
+def contact():
+  form = ContactForm()
+  
+  user_id = current_user.id
+  username = current_user.username
+  email = current_user.email
+  inquiry = form.body.data
+  if form.validate_on_submit():
+    new_contact = UserContact(user_id=user_id, inquiry=inquiry)
+    with db.session.begin(nested=True):
+      new_contact.create_new_contact()
+    db.session.commit()
+    
+    UserContact.send_contact_email(user_id, username, email, inquiry)
+    flash(f'お問い合わせを受け付けました。\n1週間以内に登録メールアドレスへ返信いたします。')
+    return redirect(url_for('app.home'))
+  
+  return render_template('contact.html', form=form)
 
 @bp.app_errorhandler(404)
 def page_not_found(e):
