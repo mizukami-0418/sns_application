@@ -25,9 +25,9 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
   </head>
   <body>
-    <nav class="navbar navbar-expand-xl navbar-light">
+    <nav class="navbar navbar-expand-xl navbar-light rounded">
       <div class="container-fluid">
-        <a class="navbar-brand fs-3 text-primary" href="#"><b>ちゃプリ</b></a>
+        <a class="navbar-brand fs-2 text-primary" href="#"><b>ちゃプリ</b></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarLight" aria-controls="navbarLight" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -46,6 +46,10 @@
             <li class="nav-item">
               <a class="nav-link active" aria-current="page" href="{{url_for('app.user_search')}}">ユーザー検索</a>
             </li>
+            {# お問い合わせを追加 #}
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="{{url_for('app.contact')}}">お問い合わせ</a>
+            </li>
             {# <a class="navbar-brand" href="{{url_for('app.logout')}}">ログアウト</a>
             <a class="navbar-brand" href="{{url_for('app.user')}}">ユーザー情報編集</a>
             <a class="navbar-brand" href="{{url_for('app.user_search')}}">ユーザー検索</a> #}
@@ -54,7 +58,7 @@
               <a class="nav-link active" aria-current="page" href="{{url_for('app.login')}}">ログイン</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="{{url_for('app.register')}}">登録</a>
+              <a class="nav-link active" aria-current="page" href="{{url_for('app.register')}}">新規登録</a>
             </li>
             {# <a class="navbar-brand" href="{{url_for('app.login')}}">ログイン</a>
             <a class="navbar-brand" href="{{url_for('app.register')}}">登録</a> #}
