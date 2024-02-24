@@ -18,15 +18,10 @@ class LoginForm(FlaskForm):
   Attributes:
     email (StringField): メールアドレスを入力するフィールド。
     password (PasswordField): パスワードを入力するフィールド。
-    confirm_password (PasswordField): パスワードの確認を入力するフィールド。
     submit (SubmitField): ログインを実行するための送信ボタン。
   """
   email = StringField('メール：', validators=[DataRequired(), Email()])
-  password = PasswordField(
-    'パスワード：',
-    validators=[DataRequired(), EqualTo('confirm_password', message='パスワードが一致しません')]
-  )
-  confirm_password = PasswordField('確認用パスワード', validators=[DataRequired()])
+  password = PasswordField('パスワード', validators=[DataRequired()])
   submit = SubmitField('ログイン')
 
 class RegisterForm(FlaskForm):
@@ -71,7 +66,7 @@ class ResetPasswordForm(FlaskForm):
   """
   password = PasswordField('パスワード：', validators=[DataRequired()])
   confirm_password = PasswordField('パスワード確認：', validators=[DataRequired()])
-  submit = SubmitField('パスワードを更新する')
+  submit = SubmitField('パスワード更新')
   
   def validate_confirm_password(form, field):
     if form.password.data != field.data:
@@ -164,8 +159,7 @@ class ChangePasswordForm(FlaskForm):
     """
     パスワードのバリデーションメソッド。
 
-    Args:
-      field (PasswordField): パスワードの入力フィールド。
+    Args: field (PasswordField): パスワードの入力フィールド。
 
     Raises:
       ValidationError: パスワードが10文字未満の場合に発生。
