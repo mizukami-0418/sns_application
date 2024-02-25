@@ -1,5 +1,6 @@
 # models.py
 import secrets
+from flask import flash
 from flaskr import db, login_manager
 from flask_bcrypt import generate_password_hash, check_password_hash
 from flask_login import UserMixin, current_user
@@ -56,10 +57,6 @@ class User(UserMixin, db.Model):
       email (str): ユーザーのメールアドレス。
 
     Returns: None
-
-    Example:
-      user = User("JohnDoe", "john@example.com")
-      # インスタンスがユーザー名とメールアドレスで初期化されます。
     """
     self.username = username
     self.email = email
@@ -128,11 +125,6 @@ class User(UserMixin, db.Model):
       new_password (str): ハッシュ化される新しいパスワード。
 
     Returns: None
-
-    Example:
-      user = User()
-      user.save_new_password("my_secure_password")
-      # インスタンスのパスワードがハッシュ化され、アクティブ状態が有効になります。
     """
     self.password = generate_password_hash(new_password)
     self.is_active = True
@@ -151,13 +143,11 @@ class User(UserMixin, db.Model):
     Note:
       ユーザー名が指定された文字列を含む、かつ現在のログインユーザーのIDと異なり、
       かつアクティブなユーザーに対して検索が行われます。
-
-    Example:
-      User.search_by_name('John')  # 'John'を含むユーザー名で検索し、一致するユーザーのリストを返します。
     """
     user_connect1 = aliased(UserConnect) # from 検索相手のID,to ログインユーザーIDでUserConnectに紐付け
     user_connect2 = aliased(UserConnect) # to 検索相手のID,from ログインユーザーIDでUserConnectに紐付け
-    return cls.query.filter(
+    # return cls.query.filter(
+    result = cls.query.filter(
       cls.username.like(f'%{username}%'),
       cls.id != int(current_user.get_id()),
       cls.is_active == True
@@ -175,9 +165,14 @@ class User(UserMixin, db.Model):
       )
     ).with_entities(
       cls.id, cls.username, cls.picture_path,
-      user_connect1.status.label("joined_status_to_from"),
-      user_connect2.status.label("joined_status_from_to")
+      user_connect1.status.label("joined_status_to_from"), # joined_status_to_from 別名で検索相手のステータスを取得
+      user_connect2.status.label("joined_status_from_to") # joined_status_from_to 別名でログインユーザーとのステータスを取得
     ).order_by(cls.username).paginate(page=page, per_page=5, error_out=False)
+    
+    if not result.items:  # result.items が空（ユーザーが見つからなかった）場合
+      flash("お友達が見つからなかったよ。もう一度探してみてね！")
+    
+    return result
     
   @classmethod
   def select_friends(cls):
@@ -220,12 +215,12 @@ class User(UserMixin, db.Model):
     return cls.query.join(
       UserConnect,
       and_(
-        UserConnect.from_user_id == cls.id,
-        UserConnect.to_user_id == current_user.get_id(),
-        UserConnect.status == 1
+        UserConnect.from_user_id == cls.id, # UserテーブルのidとUserConnectテーブルのfrom_user_idで結合条件を指定
+        UserConnect.to_user_id == current_user.get_id(), # UserConnectテーブルのto_user_idと現在のユーザーのIDで結合条件を指定
+        UserConnect.status == 1 # UserConnectテーブルのstatusカラムが1である条件を指定
       )
     ).with_entities(
-      cls.id,  cls.username, cls.picture_path
+      cls.id,  cls.username, cls.picture_path # 取得するカラムを指定
     ).all()
   
   @classmethod  
@@ -273,7 +268,6 @@ class PasswordResetToken(db.Model):
   )
   # usersテーブルと紐付ける外部キー
   user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-  # expire_at = db.Column(db.DateTime, default=datetime.now) 下記に修正
   expire_at = db.Column(db.DateTime, default=lambda: datetime.now() + timedelta(days=1)) # トークン有効時間
   create_at = db.Column(db.DateTime, default=datetime.now)
   update_at = db.Column(db.DateTime, default=datetime.now)
@@ -346,13 +340,6 @@ class PasswordResetToken(db.Model):
     Returns:
       int or None: トークンに対応するユーザーIDが見つかれば返します。
         見つからない場合はNoneが返されます。
-
-    Example:
-      user_id = User.get_user_id_by_token("sample_token")
-      if user_id:
-        print(f"ユーザーID: {user_id}")
-      else:
-        print("ユーザーが見つかりませんでした。")
     """
     now = datetime.now()
     record = cls.query.filter_by(token=str(token)).filter(cls.expire_at > now).first()
@@ -368,10 +355,6 @@ class PasswordResetToken(db.Model):
       token (str): 削除対象のトークン。
 
     Returns: None
-
-    Example:
-      User.delete_token("sample_token")
-      トークンに対応するエントリがデータベースから削除されます。
     """
     cls.query.filter_by(token=str(token)).delete()
     db.session.commit()
@@ -398,7 +381,6 @@ class UserConnect(db.Model):
   to_user_id = db.Column(
     db.Integer, db.ForeignKey('users.id'), index=True
   )
-  # 1が申請中、2が承認済み
   status = db.Column(db.Integer, unique=False, default=1)
   create_at = db.Column(db.DateTime, default=datetime.now)
   update_at = db.Column(db.DateTime, default=datetime.now)
@@ -422,7 +404,8 @@ class UserConnect(db.Model):
     """
     from_user_idおよび現在のユーザーのIDに基づいてUserConnectのインスタンスを取得するクラスメソッド。
 
-    Args: from_user_id (int): 取得する接続情報の発信元ユーザーのID。
+    Args:
+      from_user_id (int): 取得する接続情報の発信元ユーザーのID。
 
     Returns:
       UserConnect or None: 指定された条件に一致するUserConnectのインスタンス。条件に一致するものがない場合はNone。
@@ -475,7 +458,7 @@ class TalkMessage(db.Model):
     id (int): メッセージの一意の識別子として使用される主キー。
     from_user_id (int): メッセージの送信元ユーザーのID。usersテーブルの外部キー。
     to_user_id (int): メッセージの送信先ユーザーのID。usersテーブルの外部キー。
-    is_read (bool): メッセージが既読されたかどうかを示すフラグ。デフォルトはFalse。
+    is_read (bool): メッセージが既読かどうかを示すフラグ。デフォルトはFalse。
     is_checked (bool): メッセージが確認されたかどうかを示すフラグ。デフォルトはFalse。
     message (Text): メッセージの内容。
     create_at (DateTime): メッセージの作成日時。デフォルトは現在の日時。
@@ -600,7 +583,16 @@ class TalkMessage(db.Model):
     ).order_by(cls.id).all()
 
 class UserContact(db.Model):
-  
+  """
+  ユーザーコンタクト情報を管理するデータベースモデルクラス
+
+  Attributes:
+    id (int): ユーザーコンタクトの一意の識別子として使用される整数値。
+    user_id (int): このコンタクトが関連付けられているユーザーのID。'users'テーブルの'id'カラムへの外部キー。
+    inquiry (str): ユーザーからの問い合わせ内容を表すテキスト。
+    create_at (datetime): このレコードが作成された日時。デフォルトは現在の日時(datetime.now)。
+    update_at (datetime): このレコードが最後に更新された日時。デフォルトは現在の日時(datetime.now)。
+  """
   __tablename__ = 'user_contacts'
   
   id = db.Column(db.Integer, primary_key=True)
@@ -628,10 +620,8 @@ class UserContact(db.Model):
     email_body += f'ユーザー名: {username}\n'
     email_body += f'Email: {email}\n\n'
     email_body += f'問い合わせ内容:\n{inquiry}'
-
     # メールを作成
     msg = Message(subject=subject, recipients=[recipient_email], body=email_body)
-
     # メールを送信
     mail.send(msg)
   
