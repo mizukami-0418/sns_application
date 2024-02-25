@@ -38,21 +38,8 @@
             </li>
             {% if current_user.is_authenticated %}
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="{{url_for('app.logout')}}">ログアウト</a>
+              <a class="nav-link active" aria-current="page" href="{{url_for('app.user_search')}}">お友達検索</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="{{url_for('app.user')}}">ユーザー情報編集</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="{{url_for('app.user_search')}}">ユーザー検索</a>
-            </li>
-            {# お問い合わせを追加 #}
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="{{url_for('app.contact')}}">お問い合わせ</a>
-            </li>
-            {# <a class="navbar-brand" href="{{url_for('app.logout')}}">ログアウト</a>
-            <a class="navbar-brand" href="{{url_for('app.user')}}">ユーザー情報編集</a>
-            <a class="navbar-brand" href="{{url_for('app.user_search')}}">ユーザー検索</a> #}
             {% else %}
             <li class="nav-item">
               <a class="nav-link active" aria-current="page" href="{{url_for('app.login')}}">ログイン</a>
@@ -60,12 +47,23 @@
             <li class="nav-item">
               <a class="nav-link active" aria-current="page" href="{{url_for('app.register')}}">新規登録</a>
             </li>
-            {# <a class="navbar-brand" href="{{url_for('app.login')}}">ログイン</a>
-            <a class="navbar-brand" href="{{url_for('app.register')}}">登録</a> #}
             {# ここから下３行は完成後削除 #}
-            <a class="navbar-brand" href="{{url_for('app.user_list')}}">サンプルユーザー一覧</a>
+            {# <a class="navbar-brand" href="{{url_for('app.user_list')}}">サンプルユーザー一覧</a>
             <a class="navbar-brand" href="{{url_for('app.token_list')}}">サンプルトークン一覧</a>
-            <a class="navbar-brand" href="{{url_for('app.connect_list')}}">コネクト一覧</a>
+            <a class="navbar-brand" href="{{url_for('app.connect_list')}}">コネクト一覧</a> #}
+            {% endif %}
+          </ul>
+          <ul class="navbar-nav ml-auto">
+            {% if current_user.is_authenticated %}
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="{{url_for('app.user')}}">ユーザー情報編集</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="{{url_for('app.contact')}}">お問い合わせ</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="{{url_for('app.logout')}}">ログアウト</a>
+              </li>
             {% endif %}
           </ul>
         </div>
