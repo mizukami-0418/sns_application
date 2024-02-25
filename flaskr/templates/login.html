@@ -5,10 +5,10 @@
 ログイン - {{ super() }}
 {% endblock %}
 {% block content %}
-<h1 class="text-primary" style="text-align: center;">ログインはここからだよ</h1>
+<h1 class="text-primary" style="text-align: center;">ログインはここ!</h1>
 {% for message in get_flashed_messages() %}
 <div class="alert alert-info" role="alert">
-  {{ message }}
+  {{ message | safe }}
 </div>
 {% endfor %}
 <div class="row">
@@ -17,7 +17,6 @@
     {{ form.csrf_token }}
     {{ render_field(form.email) }}
     {{ render_field(form.password) }}
-    {{ render_field(form.confirm_password) }}
     {{ form.submit(class="my-2") }}
   </form>
   <a href="{{ url_for('app.forgot_password') }}">
