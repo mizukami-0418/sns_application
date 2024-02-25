@@ -16,9 +16,14 @@ home - {{ super() }}
     <p>ユーザー名：{{ current_user.username }}</p>
     <p>メールアドレス：{{ current_user.email }}</p>
   </div>
+  {% for message in get_flashed_messages() %}
+  <div class="alert alert-info" role="alert">
+  {{ message }}
+  </div>
+  {% endfor %}
   <div class="container mt-4">
     <table class="table table-striped caption-top table-bordered border-primary">
-      <caption class="bg-info text-white fw-bold text-xxl-center fs-2">フレンド一覧</caption>
+      <caption class="bg-info text-white fw-bold text-center fs-2">フレンドリスト</caption>
       <thead>
         <tr>
           <th scope="col">#</th>
@@ -46,7 +51,7 @@ home - {{ super() }}
   </div>
   <div class="container mt-4">
     <table class="table table-striped caption-top table-bordered border-primary">
-      <caption class="bg-info text-white fw-bold text-xxl-center fs-2">フレンド承認待ちリスト</caption>
+      <caption class="bg-info text-white fw-bold text-center fs-2">届いた申請リスト</caption>
       <thead>
         <tr>
           <th scope="col">#</th>
@@ -81,7 +86,7 @@ home - {{ super() }}
   </div>
   <div class="container mt-4">
     <table class="table table-striped caption-top table-bordered border-primary">
-    <caption class="bg-info text-white fw-bold text-xxl-center fs-2">未承認フレンドリスト</caption>
+    <caption class="bg-info text-white fw-bold text-center fs-2">申請済みリスト</caption>
       <thead>
         <tr>
           <th scope="col">#</th>
@@ -107,15 +112,16 @@ home - {{ super() }}
   </div>
   
   {% else %}
-  <div class="col-lg-8 offset-lg-2">
-    <h1>ともトーク</h1>
-    <p class="text-primary">ログイン or ユーザー登録をお願いします</p>
+  <div class="text-center" style="padding: 20px;">
+    <h3>1 on 1 のチャットアプリ</h3>
+    <h1 style="color:#622d18; text-shadow:0 0 15px #dbea06fe;" class="fs-1"><b>ちゃプリ</b></h1>
+    <img class="images" src="{{ url_for('static', filename='images/kids_yarn_phone.png') }}" alt="糸電話の画像">
+    <p class="text-secondary fs-5">ログイン or ユーザー登録をお願いします</p>
+    <p class="text-danger">
+    ※ ことばづかいに気をつけようね。お友達を傷つけるようなことは言わないこと。<br>
+    みんなのおやくそくだよ！！！！！！！！    by さくしゃ
+    </p>
   </div>
   {% endif %}
 </div>
-{% for message in get_flashed_messages() %}
-<div class="alert alert-info" role="alert">
-  {{ message }}
-</div>
-{% endfor %}
 {% endblock %}

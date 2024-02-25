@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 from flaskr.utils.template_filters import replace_newline
 
-load_dotenv()
+load_dotenv(override=True)
 login_manager = LoginManager()
 login_manager.login_view = 'app.view'
 login_manager.login_message = 'ログインをお願いします'
@@ -24,18 +24,17 @@ def create_app():
   """
     Flaskアプリケーションを作成し、設定します。
 
-    Returns:
-        Flask: 設定されたFlaskアプリケーションのインスタンス。
+    Returns:Flask: 設定されたFlaskアプリケーションのインスタンス。
 
     この関数はFlaskアプリケーションを初期化し、設定します。秘密鍵、データベースURIなどの
-    必要な構成を行います。また、ブループリントを登録し、データベースを初期化し、データベース
+    必要な構成を行います。また、ブループリントを登録、データベースを初期化し、データベース
     の変更をマイグレートし、ユーザー認証のためにログインマネージャーを設定します。
 
     設定が完了したFlaskアプリケーションのインスタンスが返されます。
 
     例:
-        app = create_app()
-        app.run(debug=True)
+      app = create_app()
+      app.run(debug=True)
     """
   app = Flask(__name__)
   app.config['SECRET_KEY'] = secrets.token_hex(16)

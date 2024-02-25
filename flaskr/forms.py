@@ -1,7 +1,7 @@
 # forms.py
 from collections.abc import Mapping, Sequence
 from typing import Any
-from wtforms.form import Form
+from flask_wtf import FlaskForm
 from wtforms.fields import (
   StringField, FileField, PasswordField, SubmitField, HiddenField, TextAreaField
 )
@@ -11,25 +11,20 @@ from flaskr.models import User, UserConnect
 from flask_login import current_user
 from flask import flash
 
-class LoginForm(Form):
+class LoginForm(FlaskForm):
   """
   ログインフォームを表すWTFormsフォームクラス。
 
   Attributes:
     email (StringField): メールアドレスを入力するフィールド。
     password (PasswordField): パスワードを入力するフィールド。
-    confirm_password (PasswordField): パスワードの確認を入力するフィールド。
     submit (SubmitField): ログインを実行するための送信ボタン。
   """
   email = StringField('メール：', validators=[DataRequired(), Email()])
-  password = PasswordField(
-    'パスワード：',
-    validators=[DataRequired(), EqualTo('confirm_password', message='パスワードが一致しません')]
-  )
-  confirm_password = PasswordField('確認用パスワード', validators=[DataRequired()])
+  password = PasswordField('パスワード', validators=[DataRequired()])
   submit = SubmitField('ログイン')
 
-class RegisterForm(Form):
+class RegisterForm(FlaskForm):
   """
   ユーザー登録フォームを表すWTFormsフォームクラス。
 
@@ -56,7 +51,7 @@ class RegisterForm(Form):
       raise ValidationError('登録済みのメールアドレスです')
 
 # パスワード設定用のフォーム
-class ResetPasswordForm(Form):
+class ResetPasswordForm(FlaskForm):
   """
   パスワードリセット用のフォームクラス。
 
@@ -71,7 +66,7 @@ class ResetPasswordForm(Form):
   """
   password = PasswordField('パスワード：', validators=[DataRequired()])
   confirm_password = PasswordField('パスワード確認：', validators=[DataRequired()])
-  submit = SubmitField('パスワードを更新する')
+  submit = SubmitField('パスワード更新')
   
   def validate_confirm_password(form, field):
     if form.password.data != field.data:
@@ -81,7 +76,7 @@ class ResetPasswordForm(Form):
     if len(field.data) < 10:
       raise ValidationError('パスワードは10文字以上で入力してください')
 
-class ForgotPasswordForm(Form):
+class ForgotPasswordForm(FlaskForm):
   """
   パスワードを忘れた場合のフォームクラス。
 
@@ -99,7 +94,16 @@ class ForgotPasswordForm(Form):
     if not User.select_user_by_email(field.data):
       raise ValidationError('メールアドレスは存在しません')
 
-class UserForm(Form):
+class UserForm(FlaskForm):
+  """
+  ユーザー情報を更新するためのフォームクラス。
+
+  Attributes:
+    email (StringField): メールアドレス入力フィールド。
+    username (StringField): ユーザー名入力フィールド。
+    picture_path (FileField): プロフィール画像のアップロードフィールド。
+    submit (SubmitField): フォームの送信ボタン。
+  """
   email = StringField(
     'メールアドレス：',
     validators=[DataRequired(), Email('メールアドレスに誤りがあります')]
@@ -109,7 +113,13 @@ class UserForm(Form):
   submit = SubmitField('登録情報更新')
   
   def validate(self):
-    if not super(Form, self).validate():
+    """
+    フォームのバリデーションメソッド。
+
+    Returns:
+      bool: バリデーションの結果。Trueならバリデーション成功、Falseなら失敗。
+    """
+    if not super(FlaskForm, self).validate():
       return False
     user = User.select_user_by_email(self.email.data)
     if user:
@@ -118,39 +128,98 @@ class UserForm(Form):
         return False
     return True
 
-class ChangePasswordForm(Form):
+class ChangePasswordForm(FlaskForm):
+  """
+  パスワード変更用のフォームクラス。
+
+  Attributes:
+    password (PasswordField): 新しいパスワードの入力フィールド。
+    confirm_password (PasswordField): パスワード確認のための入力フィールド。
+    submit (SubmitField): フォームの送信ボタン。
+  """
   password = PasswordField('更新パスワード：', validators=[DataRequired()])
   confirm_password = PasswordField('パスワード確認：', validators=[DataRequired()])
   submit = SubmitField('パスワードを更新する')
   
   def validate_confirm_password(form, field):
+    """
+    パスワード確認のバリデーションメソッド。
+
+    Args:
+      form (ChangePasswordForm): フォームのインスタンス。
+      field (PasswordField): パスワード確認の入力フィールド。
+
+    Raises:
+      ValidationError: パスワードが一致しない場合に発生。
+    """
     if form.password.data != field.data:
       raise ValidationError('パスワードが一致しません')
   
   def validate_password(self, field):
+    """
+    パスワードのバリデーションメソッド。
+
+    Args: field (PasswordField): パスワードの入力フィールド。
+
+    Raises:
+      ValidationError: パスワードが10文字未満の場合に発生。
+    """
     if len(field.data) < 10:
       raise ValidationError('パスワードは10文字以上で入力してください')
 
-class UserSearchForm(Form):
-  username = StringField(
-    'ユーザー名：', validators=[DataRequired()]
-  )
-  submit = SubmitField('ユーザー検索')
+class UserSearchForm(FlaskForm):
+  """
+  ユーザー検索用のフォームクラス。
 
-class ConnectForm(Form):
+  Attributes:
+    username (StringField): 検索するユーザー名の入力フィールド。
+    submit (SubmitField): フォームの送信ボタン。
+  """
+  username = StringField(
+    'ユーザー名を入力してください', validators=[DataRequired()]
+  )
+  submit = SubmitField('検索')
+
+class ConnectForm(FlaskForm):
+  """
+  友達接続のためのフォームクラス。
+
+  Attributes:
+    connect_condition (HiddenField): 友達接続の条件を指定するための隠しフィールド。
+    to_user_id (HiddenField): 接続対象のユーザーIDを指定するための隠しフィールド。
+    submit (SubmitField): フォームの送信ボタン。
+  """
   connect_condition = HiddenField()
   to_user_id = HiddenField()
   submit = SubmitField()
   
-class MessageForm(Form):
+class MessageForm(FlaskForm):
+  """
+  メッセージ送信のためのフォームクラス。
+
+  Attributes:
+    to_user_id (HiddenField): メッセージの送信先ユーザーIDを指定するための隠しフィールド。
+    message (TextAreaField): 送信するメッセージの入力フィールド。
+    submit (SubmitField): フォームの送信ボタン。
+  """
   to_user_id = HiddenField()
-  message = TextAreaField()
-  submit = SubmitField('メッセージ送信')
+  message = TextAreaField('メッセージ')
+  submit = SubmitField('送信')
   
   def validate(self):
-    if not super(Form, self).validate():
+    """
+    フォームのバリデーションメソッド。
+
+    Returns:
+      bool: バリデーションの結果。Trueならバリデーション成功、Falseなら失敗。
+    """
+    if not super(FlaskForm, self).validate():
       return False
     is_friend = UserConnect.is_friend(self.to_user_id.data)
     if not is_friend:
       return False
     return True
+  
+class ContactForm(FlaskForm):
+    body = TextAreaField('お問い合わせ内容', validators=[DataRequired()])
+    submit = SubmitField('送信')
