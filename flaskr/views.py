@@ -77,7 +77,7 @@ def login():
       flash('無効なユーザーです。パスワードを再設定してください。')
     elif not user.validate_password(form.password.data):
       # ユーザーが存在し、アクティブであるが、パスワードが間違っている場合
-      flash('パスワードが間違っています')
+      flash(f'パスワードが間違っているよ。もう一度入力してみて！<br>もし忘れたら下のリンクからパスワードの再設定してね')
   # ログインが失敗したか、GETリクエストの場合はログイン画面を表示
   return render_template('login.html', form=form)
 
@@ -86,10 +86,10 @@ def register():
   """
   新しいユーザーを登録し、パスワードリセット用のトークンを生成してメールを送信します。
 
-  このメソッドは新しいユーザーを登録し、パスワードリセットトークンを生成して、
-  ユーザーに対してそのトークンを含むメールを送信します。ユーザーには
-  パスワードリセット用のURLが含まれており、それをクリックすることでパスワード
-  をリセットできるようになります。
+  このメソッドは新しいユーザーを登録し、パスワードリセットトークンを生成する。
+  ユーザーに対しトークンを含むメールを送信します。
+  メールにはパスワードリセット用のURLが含まれており、
+  クリックすることで、パスワードをリセットできるようになります。
 
   Args:
     self: インスタンス自体。
@@ -154,16 +154,16 @@ def reset_password(token):
 @bp.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
   """
-    パスワードを忘れた場合の処理を担当するエンドポイント。
+  パスワードを忘れた場合の処理をするエンドポイント。
 
-    ユーザーがパスワードを忘れた場合、このエンドポイントを通じて
-    パスワードリセットの手続きを行います。メールアドレスがフォームに
-    入力され、存在するユーザーであれば、パスワードリセット用のトークン
-    を生成し、ユーザーにメールで送信します。
+  ユーザーがパスワードを忘れた場合、ここを通じてパスワードリセットの手続きを行います。
+  メールアドレスがフォームに入力され、存在するユーザーであれば、
+  パスワードリセット用のトークンを生成し、ユーザーにメールで送信します。
 
-    Args:None
+  Args: None
 
-    Returns:flask.Response: フォームの入力結果や処理結果に基づいたレスポンス。
+  Returns:
+  flask.Response: フォームの入力結果や処理結果に基づいたレスポンス。
   """
   # ForgotPasswordForm インスタンスの作成
   form = ForgotPasswordForm(request.form)
@@ -180,23 +180,22 @@ def forgot_password():
       # パスワードリセット用のメールをユーザーに送信
       PasswordResetToken.send_password_reset_email(email, token)
       
-      flash('パスワード再設定用のURLをメールでお送りしました。\
-            リンク先より再設定をお願いします。')
-      # ユーザーが存在しない場合、エラーメッセージを表示
+      flash(f'パスワード再設定用のURLをメールでお送りしました。\nリンク先より再設定をお願いします。')
+      # ユーザーが存在しない場合
     else:
       flash('このメールアドレスのユーザーは存在しません')
-  # フォームの入力結果や処理結果に基づいて、適切なテンプレートを表示
+  
   return render_template('forgot_password.html', form=form)
 
 @bp.route('/user', methods=['GET', 'POST'])
 @login_required
 def user():
   """
-  ユーザーページを処理します。
+  ユーザー情報編集を処理します。
 
   このルートは、ログイン済みユーザーが自分のユーザーページにアクセスし、ユーザー情報を表示および更新できるようにします。
 
-  Args:なし
+  Args: None
 
   Returns:
     リクエストメソッドがGETなら:
@@ -204,16 +203,13 @@ def user():
 
     リクエストメソッドがPOSTでフォームが有効な場合:
       ログイン中のユーザーのIDを取得します。
-      Userクラスの 'select_user_by_id' メソッドを使用して、ユーザーIDに対応するユーザーを取得します。
+      Userクラスの'select_user_by_id'メソッドを使用して、ユーザーIDに対応するユーザーを取得します。
       トランザクション内でユーザーのユーザー名とメールを更新します。
       フォームからアップロードされたユーザーのプロフィール画像を保存し、画像のパスをユーザーオブジェクトに設定します。
       データベースセッションをコミットし、フラッシュメッセージを表示します。
 
   Note:
     このルートはユーザーがログインしていることを要求します（@login_requiredでデコレートされています）。
-
-  Example:
-    フォームを使用してユーザー情報を更新し、データベースにコミットすると、フラッシュメッセージが表示されます。
   """
   form = UserForm(request.form)
   if request.method == 'POST' and form.validate():
@@ -259,7 +255,7 @@ def change_password():
 
   Example:
     フォームを使用してパスワードを変更し、データベースにコミットすると、フラッシュメッセージが表示され、
-    ユーザーはアカウントページにリダイレクトされます。
+    ユーザーはuser.htmlにリダイレクトされます。
   """
   form = ChangePasswordForm(request.form)
   if request.method == 'POST' and form.validate():
@@ -288,14 +284,11 @@ def user_search():
 
     リクエストメソッドがPOSTでフォームが有効な場合:
       提出されたフォームデータからユーザー名を取得します。
-      Userクラスの 'search_by_name' メソッドを呼び出して、提供されたユーザー名に一致するユーザーを取得します。
+      Userクラスの'search_by_name'メソッドを呼び出して、提供されたユーザー名に一致するユーザーを取得します。
       'user_search.html'テンプレートを描画し、UserSearchFormと一致するユーザーのリストを提供します。
 
   Note:
     このルートはユーザーがログインしていることを要求します（@login_requiredでデコレートされています）。
-
-  Example:
-    有効な検索フォームを送信すると、テンプレートが検索結果とともに描画されます。
   """
   form = UserSearchForm(request.form)
   connect_form = ConnectForm()
@@ -443,6 +436,16 @@ def load_old_messages():
 @bp.route('/contact', methods=['GET', 'POST'])
 @login_required
 def contact():
+  """
+  お問い合わせページへのアクセスとお問い合わせフォームの処理を行うビュー関数
+
+  Returns: response: お問い合わせフォームの処理結果に応じたレスポンス。
+
+  Notes:
+    - GETメソッド: お問い合わせフォームの表示。
+    - POSTメソッド: フォームデータの検証およびデータベースへの保存を行う。
+      保存後にユーザーへの通知メールを送信し、ホームページへリダイレクトする。
+    """
   form = ContactForm()
   
   user_id = current_user.id
