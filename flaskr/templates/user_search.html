@@ -5,10 +5,10 @@
 {% endblock %}
 {% block content %}
 {# <div class="container"> #}
-  <div class="text-primary" style="text-align: center;">
-    <h1>お友達検索</h1>
-    <p>ユーザー名を入力し、お友達を探してみよう！</p>
-  </div>
+<div class="text-primary" style="text-align: center;">
+  <h1>お友達検索</h1>
+  <p>ユーザー名を入力し、お友達を探してみよう！</p>
+</div>
 {# </div> #}
 <div class="row">
   <div class="col-4 offset-2">
@@ -77,6 +77,12 @@
     {% if next_url %}
       <a href="{{ next_url }}">次へ</a>
     {% endif %}
+    {% else %}
+      {% for message in get_flashed_messages() %}
+      <div class="alert alert-warning" role="alert">
+      {{ message }}
+      </div>
+      {% endfor %}
     {% endif %}
   </div>
 </div>
