@@ -1,0 +1,27 @@
+{# register.html #}
+{% from "_formhelpers.html" import render_field %}
+{% extends "base.html" %}
+{% block title %}
+新規ユーザー登録 - {{ super() }}
+{% endblock %}
+{% block content %}
+<h1 class="text-primary" style="text-align: center;">新規登録!!!!!!!!</h1>
+<h2 class="text-success" style="text-align: center;">ちゃプリへようこそ！</h2>
+<div class="row">
+  <form method="POST" style="border: thick double #3498db;
+    border-radius: 20px; padding: 40px; margin: 20px auto; max-width: fit-content">
+    {{ form.csrf_token }}
+    {{ render_field(form.username) }}
+    {{ render_field(form.email) }}
+    {{ form.submit(class="my-2") }}
+  </form>
+  {% for message in get_flashed_messages() %}
+    <div class="alert alert-info" role="alert">
+    {{ message }}
+    </div>
+  {% endfor %}
+  <div class="row mt-3">
+  <p>既にアカウントをお持ちですか？ <a href="{{ url_for('app.login') }}">ログインはこちらから</a></p>
+  </div>
+</div>
+{% endblock %}

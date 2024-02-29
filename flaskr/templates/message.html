@@ -1,0 +1,98 @@
+{% from "_formhelpers.html" import render_field %}
+{% extends "base.html" %}
+{% block title %}
+メッセージ画面 - {{ super() }}
+{% endblock %}
+{% block content %}
+<script>
+  $(function(){
+    // 5秒間隔でget_new_messagesを実行
+    let timer = setInterval(get_new_messages, 5000);
+    // 初期表示で画面の一番下を表示
+    let scroll = (document.scrollingElement || document.body);
+    scroll.scrollTop = scroll.scrollHeight;
+  });
+
+  let user_id = "{{ to_user_id }}";
+  offset_value = 1;
+  function get_new_messages(){
+    $.getJSON("/message_ajax", {
+      user_id: user_id
+    }, function(data){
+      $('#message-form').before(data['data']);
+      let checked_message_ids = data['checked_message_ids']
+      for(let idx = 0; idx < checked_message_ids.length; idx++){
+        $('#self-message-tag-' + checked_message_ids[idx]).append('<p class="text-end">既読</p>')
+      }
+    });
+  };
+  function load_old_messages(){
+    $.getJSON("/load_old_messages", {
+      user_id: user_id,
+      offset_value: offset_value
+    }, function(data){
+        if(data['data']){
+          hidden_id = "load_message_" + offset_value;
+          hidden_tag = '<div id="' + hidden_id + '"></div>';
+          $(hidden_tag).insertAfter('#load_message_button');
+          $(data['data']).insertAfter('#load_message_button');
+          $('body,html').animate({scrollTop: $("#" + hidden_id).offset().top}, 0);
+          offset_value += 1;
+        }
+    });
+  };
+</script>
+<div class="row">
+  <div id="load_message_button" class="col-12">
+    <button class="col-12 btn btn-light btn-outline-primary mb-2" onclick="load_old_messages();">追加で50件を表示</button>
+  </div>
+  {% for message in messages | reverse %}
+    {% if message.from_user_id == current_user.id %}
+    <div id="self-message-tag-{{message.id}}" class="col-4">
+      <p class="text-end m-0 text-black-50" style="font-size: 15px;">{{ message.create_at.strftime('%m/%d') }}</p>
+      <p class="text-end text-black-50" style="font-size: 15px;">{{ message.create_at.strftime('%H:%M') }}</p>
+      {% if message.is_checked %} {# 既読メッセージにチェック済 #}
+      <p class="text-end text-black-50 mt-1 mb-0 mx-0" style="font-size: 15px;">既読</p>
+      {% endif %}
+    </div>
+    <div class="speech-bubble-self col-6">
+      {% for splitted_message in message.message | replace_newline %}
+        <p>{{ splitted_message | urlize }}</p>
+      {% endfor %}
+    </div>
+    <div class="col-2">
+      {% if current_user.picture_path %}
+        <img class="user-image-mini" src="{{ url_for('static', filename=current_user.picture_path) }}">
+      {% endif %}
+      <p>{{ current_user.username }}</p>
+    </div>
+    {% else %}
+    <div class="col-2 ps-1">
+      {% if user.picture_path %}
+        <img class="user-image-mini" src="{{ url_for('static', filename=user.picture_path) }}">
+      {% endif %}
+      <p>{{ user.username }}</p>
+    </div>
+    <div class="speech-bubble-dest col-6">
+      {% for splitted_message in message.message | replace_newline %}
+        <p>{{ splitted_message | urlize }}</p>
+      {% endfor %}
+    </div>
+    <div class="col-4">
+      {# 投稿時刻を表示する #}
+      <p class="m-0 text-black-50" style="font-size: 15px;">{{ message.create_at.strftime('%m/%d') }}</p>
+      <p class="text-black-50" style="font-size: 15px;">{{ message.create_at.strftime('%H:%M') }}</p>
+    </div>
+    {% endif %}
+  {% endfor %}
+  <div id="message-form" class="col-10 offset-1">
+    <form method="POST">
+      {{ form.csrf_token }}
+      {{ form.to_user_id(value=to_user_id) }}
+      {{ render_field(form.message, cols="50", rows="3",
+      class="form-control rounded bg-light text-dark bg-opacity-10 border-primary") }}
+      {{ form.submit(class="my-2")}}
+    </form>
+  </div>
+</div>
+{% endblock %}

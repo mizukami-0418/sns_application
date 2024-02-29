@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>テストトークン削除用</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">id</th>
+        <th scope="col">token</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for token in tokens %}
+      <tr>
+        <th scope="row">{{ token.id }}</th>
+        <td>{{ token.token }}</td>
+        <td>
+          <form action="{{ url_for('app.token_delete', id=token.id) }}" method="POST">
+            <input class="btn btn-danger btn-sm" type="submit" value="削除">
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

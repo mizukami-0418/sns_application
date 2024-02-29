@@ -1,0 +1,26 @@
+{# login.html #}
+{% from "_formhelpers.html" import render_field %}
+{% extends "base.html" %}
+{% block title %}
+ログイン - {{ super() }}
+{% endblock %}
+{% block content %}
+<h1 class="text-primary" style="text-align: center;">ログインはここ!</h1>
+{% for message in get_flashed_messages() %}
+<div class="alert alert-info" role="alert">
+  {{ message | safe }}
+</div>
+{% endfor %}
+<div class="row">
+  <form method="POST" style="border: thick double #3498db;
+    border-radius: 20px; padding: 40px; margin: 20px auto; max-width: fit-content">
+    {{ form.csrf_token }}
+    {{ render_field(form.email) }}
+    {{ render_field(form.password) }}
+    {{ form.submit(class="my-2") }}
+  </form>
+  <a href="{{ url_for('app.forgot_password') }}">
+  パスワードをお忘れですか？
+  </a>
+</div>
+{% endblock %}

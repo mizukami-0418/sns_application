@@ -1,0 +1,89 @@
+{% from "_formhelpers.html" import render_field %}
+{% extends "base.html" %}
+{% block title %}
+ユーザー検索 - {{ super() }}
+{% endblock %}
+{% block content %}
+{# <div class="container"> #}
+<div class="text-primary" style="text-align: center;">
+  <h1>お友達検索</h1>
+  <p>ユーザー名を入力し、お友達を探してみよう！</p>
+</div>
+{# </div> #}
+<div class="row">
+  <div class="col-4 offset-2">
+    <img class="img-fluid" src="{{ url_for('static', filename='images/magnifier_animal_inu.png') }}" alt="探偵ドッグ">
+  </div>
+  <div class="col-6">
+    <form method="GET" style="border: thick double #3498db;
+    border-radius: 20px; padding: 40px; margin: 20px auto; max-width: fit-content">
+      {{ form.csrf_token }}
+      {{ render_field(form.username) }}
+      {{ form.submit(class="my-2") }}
+    </form>
+  </div>
+  <div class="col-lg-12">
+    {% if users %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">プロフィール画像</th>
+          <th scope="col">ユーザー名</th>
+          <th scope="col">フレンド申請or承認</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr>
+          <th scope="col">{{ loop.index }}</th>
+          {% if user.picture_path %}
+          <th scope="col">
+            {% set img_src = url_for('static', filename=user.picture_path) %}
+            <img class="img-fluid" src="{{ img_src }}" alt="{{ user.username }}" style="max-width: 100px; max-height: 100px;">
+          </th>
+          {% else %}
+          <th scope="col"></th>
+          {% endif %}
+          <th scope="col">{{ user.username }}</th>
+          <th scope="col">
+            {% if user.joined_status_from_to == 2 or user.joined_status_to_from == 2 %}
+            フレンド
+            {% elif user.joined_status_from_to == 1 %}
+            フレンド申請中
+            {% elif user.joined_status_to_from == 1 %}
+            <form method="POST" action="{{ url_for('app.connect_user') }}">
+              {{ connect_form.csrf_token }}
+              {{ connect_form.connect_condition(value='accept') }}
+              {{ connect_form.to_user_id(value=user.id) }}
+              {{ connect_form.submit(class='btn btn-primary', value='フレンド承認')}}
+            </form>
+            {% else %}
+            <form method="POST" action="{{ url_for('app.connect_user') }}">
+              {{ connect_form.csrf_token }}
+              {{ connect_form.connect_condition(value='connect') }}
+              {{ connect_form.to_user_id(value=user.id) }}
+              {{ connect_form.submit(class='btn btn-primary', value='フレンド申請する')}}
+            </form>
+            {% endif %}
+          </th>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if prev_url %}
+      <a href="{{ prev_url }}">前へ</a>
+    {% endif %}
+    {% if next_url %}
+      <a href="{{ next_url }}">次へ</a>
+    {% endif %}
+    {% else %}
+      {% for message in get_flashed_messages() %}
+      <div class="alert alert-warning" role="alert">
+      {{ message }}
+      </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

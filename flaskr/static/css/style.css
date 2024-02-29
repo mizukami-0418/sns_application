@@ -1,0 +1,90 @@
+/* style.css */
+
+body {
+  background-color: #eae7b3;
+	max-width: 1000px;
+	width: 100%;
+	margin: auto;
+	font-family: "Kosugi Maru", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.navbar {
+	background-color: #b5f9d6;
+}
+
+.container {
+  background-color: #FFF; /* 白色 */
+  padding: 20px;
+  border-radius: 20px;
+	border: thick double #2ad0df;
+	margin-top: 20px;
+	max-width: 80%;
+}
+
+.user-image-mini {
+	width: 50px;
+	height: 50px;
+}
+
+.images {
+	max-width: 80%;
+}
+
+.speech-bubble-dest {
+	position: relative;
+	background: #2ad0df;
+	border-radius: 1.0em;
+	margin-top: 10px; 
+	margin-bottom: 10px;
+}
+
+.speech-bubble-dest:after {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 20%;
+	width: 0;
+	height: 0;
+	border: 20px solid transparent;
+	border-right-color: #2ad0df;
+	border-left: 0;
+	margin-top: -10px;
+	margin-left: -10px;
+}
+
+.speech-bubble-self {
+	position: relative;
+	background: #d5ea8a;
+	border-radius: 1.0em;
+	margin-top: 10px; 
+	margin-bottom: 10px;
+}
+
+.speech-bubble-self:after {
+	content: '';
+	position: absolute;
+	right: 0;
+	top: 20%;
+	width: 0;
+	height: 0;
+	border: 20px solid transparent;
+	border-left-color: #d5ea8a;
+	border-right: 0;
+	margin-top: -10px;
+	margin-right: -10px;
+}
+
+/* メディアスクリーン */
+@media screen and (max-width:700px) {
+  .container {
+    max-width: 90%;
+	}
+}
+
+@media screen and (max-width:480px) {
+  .container {
+    max-width: 100%;
+	}
+}

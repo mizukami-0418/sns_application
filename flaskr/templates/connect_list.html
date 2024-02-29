@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>ユーザーコネクト削除用</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">id</th>
+        <th scope="col">from_user_id</th>
+        <th scope="col">to_user_id</th>
+        <th scope="col">status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for connect in connects %}
+      <tr>
+        <th scope="row">{{ connect.id }}</th>
+        <td>{{ connect.from_user_id }}</td>
+        <td>{{ connect.to_user_id }}</td>
+        <td>{{ connect.status }}</td>
+        <td>
+          <form action="{{ url_for('app.connect_delete', id=connect.id) }}" method="POST">
+            <input class="btn btn-danger btn-sm" type="submit" value="削除">
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{# user.html #}
+{% from "_formhelpers.html" import render_field %}
+{% extends "base.html" %}
+{% block title %}
+ユーザー情報編集 - {{ super() }}
+{% endblock %}
+{% block content %}
+<div class="text-primary" style="text-align: center;">
+<h1>{{ current_user.username }}さんのプロフィール</h1>
+</div>
+<div class="row">
+  {% for message in get_flashed_messages() %}
+  <div class="alert alert-info" role="alert">
+  {{ message }}
+  </div>
+  {% endfor %}
+  <div class="col-6">
+    {% if current_user.picture_path %}
+    <img src="{{ url_for('static', filename=current_user.picture_path)}}"
+    class="img-fluid" alt="User Picture">
+    {% endif %}
+  </div>
+  <div class="col-6">
+    <form method="POST" enctype="multipart/form-data" style="border: thick double #3498db;
+    border-radius: 20px; padding: 40px; margin: 20px auto; max-width: fit-content">
+      {{ form.csrf_token }}
+      {{ render_field(form.username, value=current_user.username) }}
+      {{ render_field(form.email, value=current_user.email) }}
+      {{ render_field(form.picture_path) }}
+      {{ form.submit(class="my-2") }}
+    </form>
+    <a href="{{ url_for('app.change_password') }}">パスワード変更はこちらから</a>
+  </div>
+</div>
+{% endblock %}

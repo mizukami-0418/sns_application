@@ -1,0 +1,127 @@
+{# home.html #}
+{% extends "base.html" %}
+{% block title %}
+home - {{ super() }}
+{% endblock title %}
+{% block content %}
+<div class="row">
+  {% if current_user.is_authenticated %}
+  <div class="col-lg-4 offset-lg-2">
+    {% if current_user.picture_path %}
+      <img src="{{ url_for('static', filename=current_user.picture_path) }}"
+      class="img-fluid" alt="User Picture">
+    {% endif %}
+  </div>
+  <div class="col-lg-4">
+    <p>ユーザー名：{{ current_user.username }}</p>
+    <p>メールアドレス：{{ current_user.email }}</p>
+  </div>
+  {% for message in get_flashed_messages() %}
+  <div class="alert alert-info" role="alert">
+  {{ message }}
+  </div>
+  {% endfor %}
+  <div class="container mt-4">
+    <table class="table table-striped caption-top table-bordered border-primary">
+      <caption class="bg-info text-white fw-bold text-center fs-2">フレンドリスト</caption>
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">プロフィール画像</th>
+          <th scope="col">ユーザー名</th>
+          <th scope="col">メッセージ</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for friend in friends %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          {% if friend.picture_path %}
+          {% set img_src = url_for('static', filename=friend.picture_path) %}
+          <td><img class="img-fluid" src="{{ img_src }}" alt="{{ friend.username }}" style="max-width: 100px; max-height: 100px;"></td>
+          {% else %}
+          <td></td>
+          {% endif %}
+          <td>{{ friend.username }}</td>
+          <td><a href="{{ url_for('app.message', id=friend.id) }}" class="btn btn-link">メッセージ送信</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="container mt-4">
+    <table class="table table-striped caption-top table-bordered border-primary">
+      <caption class="bg-info text-white fw-bold text-center fs-2">届いた申請リスト</caption>
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">プロフィール画像</th>
+          <th scope="col">ユーザー名</th>
+          <th scope="col">フレンド承認状況</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for friend in requested_friends %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        {% if friend.picture_path %}
+        {% set img_src = url_for('static', filename=friend.picture_path) %}
+        <td><img class="img-fluid" src="{{ img_src }}" alt="{{ friend.username }}" style="max-width: 100px; max-height: 100px;"></td>
+        {% else %}
+        <td></td>
+        {% endif %}
+        <td>{{ friend.username }}</td>
+        <td>
+          <form method="POST" action="{{ url_for('app.connect_user')}}">
+            {{ connect_form.csrf_token }}
+            {{ connect_form.connect_condition(value='accept') }}
+            {{ connect_form.to_user_id(value=friend.id) }}
+            {{ connect_form.submit(class="btn btn-primary", value='フレンド申請承認') }}
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="container mt-4">
+    <table class="table table-striped caption-top table-bordered border-primary">
+    <caption class="bg-info text-white fw-bold text-center fs-2">申請済みリスト</caption>
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">プロフィール画像</th>
+          <th scope="col">ユーザー名</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for friend in requesting_friends %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        {% if friend.picture_path %}
+        {% set img_src = url_for('static', filename=friend.picture_path) %}
+        <td><img class="img-fluid" src="{{ img_src }}" alt="{{ friend.username }}" style="max-width: 100px; max-height: 100px;"></td>
+        {% else %}
+        <td></td>
+        {% endif %}
+        <td>{{ friend.username }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  
+  {% else %}
+  <div class="text-center" style="padding: 20px;">
+    <h3>1 on 1 のチャットアプリ</h3>
+    <h1 style="color:#622d18; text-shadow:0 0 15px #dbea06fe;" class="fs-1"><b>ちゃプリ</b></h1>
+    <img class="images" src="{{ url_for('static', filename='images/kids_yarn_phone.png') }}" alt="糸電話の画像">
+    <p class="text-secondary fs-5">ログイン or ユーザー登録をお願いします</p>
+    <p class="text-danger">
+    ※ ことばづかいに気をつけようね。お友達を傷つけるようなことは言わないこと。<br>
+    みんなのおやくそくだよ！！！！！！！！    by さくしゃ
+    </p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
