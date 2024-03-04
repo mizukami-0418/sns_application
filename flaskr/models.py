@@ -321,7 +321,7 @@ class PasswordResetToken(db.Model):
     Returns: None
     """
     subject = 'パスワード設定用URLを送信しました。本文より設定をお願いします。'
-    body = f'パスワード設定用URLをお送りします。下記よりパスワードの設定をお願いします。\nパスワード設定用URL : https://chappli-sns-20973d404a12.herokuapp.com/reset_password/{token}'
+    body = f'パスワード設定用URLをお送りします。下記よりパスワードの設定をお願いします。\nパスワード設定用URL : https://<公開ドメインを入力してください>/reset_password/{token}'
     msg = Message(subject, recipients=[email], body=body)
     mail.send(msg)
     
