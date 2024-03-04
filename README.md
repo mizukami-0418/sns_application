@@ -5,7 +5,7 @@
 ## インストール
 
 1. このリポジトリをクローンします。
-https://github.com/mizukami-0418/sns_application.git
+git clone https://github.com/mizukami-0418/sns_application.git
 
 2. プロジェクトディレクトリへ移動
   cd project_directory
