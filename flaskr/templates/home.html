@@ -76,7 +76,7 @@
             {{ connect_form.csrf_token }}
             {{ connect_form.connect_condition(value='accept') }}
             {{ connect_form.to_user_id(value=friend.id) }}
-            {{ connect_form.submit(class="btn btn-primary", value='フレンド申請承認') }}
+            {{ connect_form.submit(class="btn btn-primary", value='申請承認') }}
           </form>
         </td>
       </tr>
@@ -116,7 +116,11 @@
     <h3>1 on 1 のチャットアプリ</h3>
     <h1 style="color:#622d18; text-shadow:0 0 15px #dbea06fe;" class="fs-1"><b>ちゃプリ</b></h1>
     <img class="images" src="{{ url_for('static', filename='images/kids_yarn_phone.png') }}" alt="糸電話の画像">
-    <p class="text-secondary fs-5">ログイン or ユーザー登録をお願いします</p>
+    <p class="text-secondary fs-5">
+    <a href="{{url_for('app.login')}}">ログイン</a> or 
+    <a href="{{url_for('app.register')}}">新規登録</a> をお願いします
+    </p>
+    <p class="text-warning fs-5">※ メニューからもえらべるよ</p>
     <p class="text-danger">
     ※ ことばづかいに気をつけようね。お友達を傷つけるようなことは言わないこと。<br>
     みんなのおやくそくだよ！！！！！！！！    by さくしゃ
