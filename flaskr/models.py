@@ -321,7 +321,8 @@ class PasswordResetToken(db.Model):
     Returns: None
     """
     subject = 'パスワード設定用URLを送信しました。本文より設定をお願いします。'
-    body = f'パスワード設定用URLをお送りします。下記よりパスワードの設定をお願いします。\nパスワード設定用URL : https://<公開ドメインを入力してください>/reset_password/{token}'
+    # body = f'パスワード設定用URLをお送りします。下記よりパスワードの設定をお願いします。\nパスワード設定用URL : https://<公開ドメインを入力してください>/reset_password/{token}'
+    body = f'パスワード設定用URLをお送りします。下記よりパスワードの設定をお願いします。\nパスワード設定用URL : http://127.0.0.0:5000/reset_password/{token}'
     msg = Message(subject, recipients=[email], body=body)
     mail.send(msg)
     
