@@ -204,6 +204,7 @@ class MessageForm(FlaskForm):
   """
   to_user_id = HiddenField()
   message = TextAreaField('メッセージ')
+  # photo_image = FileField('画像')
   submit = SubmitField('送信')
   
   def validate(self):

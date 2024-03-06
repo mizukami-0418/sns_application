@@ -379,7 +379,8 @@ def message(id):
     db.session.commit()
     return redirect(url_for('app.message', id=id)) # 保存したメッセージを取得
   return render_template(
-    'message.html', form=form, messages=messages, to_user_id=id, user=user
+    'message.html', form=form, messages=messages, to_user_id=id, user=user,
+    # photo_image=photo_image
     )
 
 @bp.route('/message_ajax', methods=['GET'])

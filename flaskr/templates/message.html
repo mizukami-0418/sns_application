@@ -89,6 +89,7 @@
     <form method="POST">
       {{ form.csrf_token }}
       {{ form.to_user_id(value=to_user_id) }}
+      {# {{ form.phtoto_image()}} #}
       {{ render_field(form.message, cols="50", rows="3",
       class="form-control rounded bg-light text-dark bg-opacity-10 border-primary") }}
       {{ form.submit(class="my-2")}}
