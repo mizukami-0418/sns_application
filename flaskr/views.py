@@ -364,8 +364,12 @@ def message(id):
   read_message_ids = [message.id for message in messages if (not message.is_read) and (message.from_user_id == int(id))]
   not_checked_message_ids = [message.id for message in messages if message.is_read and (not message.is_checked) and (message.from_user_id == int(current_user.get_id()))]
   if not_checked_message_ids:
-    with db.session(nested=True):
-      TalkMessage.update_is_checked_by_id(not_checked_message_ids)
+    # with db.session() as session:
+    #   with session.begin_nested():
+    #     TalkMessage.update_is_checked_by_id(not_checked_message_ids)
+    # db.session.commit()
+    with db.session.begin(nested=True):
+      TalkMessage.update_is_checked_by_ids(not_checked_message_ids)
     db.session.commit()
   # read_message_idsのis_readをTrueに変更
   if read_message_ids:
